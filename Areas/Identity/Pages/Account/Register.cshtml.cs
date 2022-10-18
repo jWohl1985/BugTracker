@@ -174,7 +174,6 @@ namespace BugTracker.Areas.Identity.Pages.Account
                     Email = Input.Email,
                     PasswordHash = Input.Password,
                 };
-                    //Activator.CreateInstance<BugTrackerUser>();
             }
             catch
             {
