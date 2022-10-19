@@ -6,6 +6,7 @@ namespace BugTracker.Models
 {
     public class TicketAttachment
     {
+        // Keys
         public int Id { get; set; }
 
         [DisplayName("Ticket")]
@@ -14,7 +15,7 @@ namespace BugTracker.Models
         [DisplayName("Team Member")]
         public string UserId { get; set; }
 
-
+        // Properties
         [DisplayName("File Date")]
         public DateTimeOffset Created { get; set; }
 
@@ -32,7 +33,6 @@ namespace BugTracker.Models
 
         [DisplayName("File Extension")]
         public string FileType { get; set; }
-
 
         // Navigation properties
         public virtual Ticket Ticket { get; set; }

@@ -1,5 +1,7 @@
 using BugTracker.Data;
 using BugTracker.Models;
+using BugTracker.Services;
+using BugTracker.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,6 +19,10 @@ builder.Services.AddIdentity<BugTrackerUser, IdentityRole>(options => options.Si
     .AddDefaultUI()
     .AddDefaultTokenProviders()
     .AddEntityFrameworkStores<ApplicationDbContext>();
+
+builder.Services.AddScoped<IRoleService, RoleService>();
+builder.Services.AddScoped<ICompanyInfoService, CompanyInfoService>();
+builder.Services.AddScoped<IProjectService, ProjectService>();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();

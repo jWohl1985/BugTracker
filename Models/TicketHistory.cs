@@ -4,6 +4,7 @@ namespace BugTracker.Models
 {
     public class TicketHistory
     {
+        // Keys
         public int Id { get; set; }
 
         [DisplayName("Ticket")]
@@ -12,7 +13,7 @@ namespace BugTracker.Models
         [DisplayName("Team Member")]
         public string UserId { get; set; }
 
-
+        // Properties
         [DisplayName("Updated Item")]
         public string Property { get; set; }
 
@@ -28,7 +29,6 @@ namespace BugTracker.Models
         [DisplayName("Description")]
         public string Description { get; set; }
 
-        
         // Navigation properties
         public virtual Ticket Ticket { get; set; }
         public virtual BugTrackerUser User { get; set; }

@@ -7,8 +7,10 @@ namespace BugTracker.Models
 {
     public class BugTrackerUser : IdentityUser
     {
+        // Keys
         public int? CompanyId { get; set; }
 
+        // Properties
         [Required]
         [Display(Name = "First Name")]
         public string FirstName { get; set; }
@@ -27,11 +29,11 @@ namespace BugTracker.Models
 
         [DisplayName("Avatar")]
         public string AvatarFileName { get; set; }
+
         public byte[] AvatarFileData { get; set; }
 
         [DisplayName("File Extension")]
         public string AvatarFileType { get; set; }
-
 
         // Navigation properties
         public virtual Company Company { get; set; }

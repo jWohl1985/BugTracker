@@ -1,0 +1,95 @@
+﻿@model IEnumerable<BugTracker.Models.Invite>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.SendDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.JoinDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CompanyToken)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RecipientEmail)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RecipientFirstName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RecipientLastName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsValid)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Company)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Project)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Sender)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Recipient)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.SendDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.JoinDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CompanyToken)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RecipientEmail)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RecipientFirstName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RecipientLastName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsValid)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Company.Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Project.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Sender.Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Recipient.Id)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

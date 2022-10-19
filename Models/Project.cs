@@ -6,6 +6,7 @@ namespace BugTracker.Models
 {
     public class Project
     {
+        // Keys
         public int Id { get; set; }
 
         [DisplayName("Company")]
@@ -14,7 +15,7 @@ namespace BugTracker.Models
         [DisplayName("Priority")]
         public int? PriorityId { get; set; }
 
-
+        // Properties
         [Required]
         [StringLength(50)]
         [DisplayName("Project Name")]
@@ -32,6 +33,7 @@ namespace BugTracker.Models
 
         [NotMapped]
         [DataType(DataType.Upload)]
+
         public IFormFile ImageFile { get; set; }
 
         public byte[] ImageData { get; set; }
@@ -40,7 +42,6 @@ namespace BugTracker.Models
 
         [DisplayName("File Name")]
         public string ImageFileName { get; set; }
-
 
         // Navigation properties
         public virtual Company Company { get; set; }

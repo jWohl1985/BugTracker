@@ -5,6 +5,7 @@ namespace BugTracker.Models
 {
     public class Ticket
     {
+        // Keys
         public int Id { get; set; }
 
         [DisplayName("Project")]
@@ -25,7 +26,7 @@ namespace BugTracker.Models
         [DisplayName("Developer")]
         public string DeveloperId { get; set; }
 
-
+        // Properties
         [Required]
         [StringLength(50)]
         public string Title { get; set; }
@@ -41,8 +42,6 @@ namespace BugTracker.Models
 
         public bool Archived { get; set; }
         
-
-
         // Navigation properties
         public virtual Project Project { get; set; }
         public virtual TicketType Type { get; set; }

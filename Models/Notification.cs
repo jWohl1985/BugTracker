@@ -5,6 +5,7 @@ namespace BugTracker.Models
 {
     public class Notification
     {
+        // Keys
         public int Id { get; set; }
 
         [DisplayName("Ticket")]
@@ -16,10 +17,7 @@ namespace BugTracker.Models
         [DisplayName("Sender")]
         public string SenderId { get; set; }
 
-        [DisplayName("Has been viewed")]
-        public bool Viewed { get; set; }
-
-
+        // Properties
         [Required]
         [DisplayName("Title")]
         public string Title { get; set; }
@@ -32,6 +30,8 @@ namespace BugTracker.Models
         [DisplayName("Date")]
         public DateTimeOffset Created { get; set; }
 
+        [DisplayName("Has been viewed")]
+        public bool Viewed { get; set; }
 
         // Navigation properties
         public virtual Ticket Ticket { get; set; }
