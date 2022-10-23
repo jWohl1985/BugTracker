@@ -11,20 +11,22 @@ namespace BugTracker.Models
         [DisplayName("Ticket")]
         public int TicketId { get; set; }
 
+        [Required]
         [DisplayName("Recipient")]
-        public string RecipientId { get; set; }
+        public string? RecipientId { get; set; }
 
+        [Required]
         [DisplayName("Sender")]
-        public string SenderId { get; set; }
+        public string? SenderId { get; set; }
 
         // Properties
         [Required]
         [DisplayName("Title")]
-        public string Title { get; set; }
+        public string? Title { get; set; }
 
         [Required]
         [DisplayName("Message")]
-        public string Message { get; set; }
+        public string? Message { get; set; }
 
         [DataType(DataType.Date)]
         [DisplayName("Date")]
@@ -34,8 +36,8 @@ namespace BugTracker.Models
         public bool Viewed { get; set; }
 
         // Navigation properties
-        public virtual Ticket Ticket { get; set; }
-        public virtual BugTrackerUser Recipient { get; set; }
-        public virtual BugTrackerUser Sender { get; set; }
+        public virtual Ticket Ticket { get; set; } = null!;
+        public virtual BugTrackerUser Recipient { get; set; } = null!;
+        public virtual BugTrackerUser Sender { get; set; } = null!;
     }
 }

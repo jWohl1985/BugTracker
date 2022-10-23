@@ -9,11 +9,12 @@ namespace BugTracker.Models
         public int Id { get; set; }
 
         // Properties
+        [Required]
         [DisplayName("Company Name")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         [DisplayName("Company Description")]
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         // Navigation properties
         public ICollection<Project> Projects { get; set; } = new HashSet<Project>();

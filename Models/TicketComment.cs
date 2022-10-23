@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace BugTracker.Models
 {
@@ -10,18 +11,20 @@ namespace BugTracker.Models
         [DisplayName("Ticket")]
         public int TicketId { get; set; }
 
+        [Required]
         [DisplayName("Team Member")]
-        public string UserId { get; set; }
+        public string? UserId { get; set; }
 
         // Properties
         [DisplayName("Date")]
         public DateTimeOffset Created { get; set; }
 
-        public string Comment { get; set; }
+        [Required]
+        public string? Comment { get; set; }
 
         // Navigation properties
-        public virtual Ticket Ticket { get; set; }
-        public virtual BugTrackerUser User { get; set; }
+        public virtual Ticket Ticket { get; set; } = null!;
+        public virtual BugTrackerUser User { get; set; } = null!;
 
     }
 }

@@ -60,11 +60,16 @@ namespace BugTracker.Services
             if (companyId is null)
                 return new Company();
 
-            return await _context.Companies
+            var company = await _context.Companies
                 .Include(c => c.Members)
                 .Include(c => c.Projects)
                 .Include(c => c.Invites)
                 .FirstOrDefaultAsync(c => c.Id == companyId);
+
+            if (company is not null)
+                return company;
+            else
+                return new Company();
         }
     }
 }

@@ -26,9 +26,13 @@ namespace BugTracker.Services
             return (await _userManager.AddToRoleAsync(user, roleName)).Succeeded;
         }
 
-        public async Task<string> GetRoleNameByIdAsync(string roleId)
+        public async Task<string?> GetRoleNameByIdAsync(string roleId)
         {
-            IdentityRole role = _context.Roles.Find(roleId);
+            IdentityRole? role = _context.Roles.Find(roleId);
+
+            if (role == null)
+                return null;
+
             return await _roleManager.GetRoleNameAsync(role);
         }
 

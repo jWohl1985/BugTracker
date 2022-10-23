@@ -11,17 +11,17 @@ namespace BugTracker.Data
         {
         }
 
-        public DbSet<Company> Companies { get; set; }
-        public DbSet<Project> Projects { get; set; }
-        public DbSet<Ticket> Tickets { get; set; }
-        public DbSet<Invite> Invites { get; set; }
-        public DbSet<Notification> Notifications { get; set; }
-        public DbSet<ProjectPriority> ProjectPriorities { get; set; }
-        public DbSet<TicketAttachment> TicketAttachments { get; set; }
-        public DbSet<TicketComment> TicketComments { get; set; }
-        public DbSet<TicketHistory> TicketHistories { get; set; }
-        public DbSet<TicketPriority> TicketPriorities { get; set; }
-        public DbSet<TicketStatus> TicketStatuses { get; set; }
-        public DbSet<TicketType> TicketTypes { get; set; }
+        public DbSet<Company> Companies { get; set; } = null!;
+        public DbSet<Project> Projects { get; set; } = null!;
+        public DbSet<Ticket> Tickets { get; set; } = null!;
+        public DbSet<Invite> Invites { get; set; } = null!;
+        public DbSet<Notification> Notifications { get; set; } = null!;
+        public DbSet<ProjectPriority> ProjectPriorities { get; set; } = null!;
+        public DbSet<TicketAttachment> TicketAttachments { get; set; } = null!;
+        public DbSet<TicketComment> TicketComments { get; set; } = null!;
+        public DbSet<TicketHistory> TicketHistories { get; set; } = null!;
+        public DbSet<TicketPriority> TicketPriorities { get; set; } = null!;
+        public DbSet<TicketStatus> TicketStatuses { get; set; } = null!;
+        public DbSet<TicketType> TicketTypes { get; set; } = null!;
     }
 }

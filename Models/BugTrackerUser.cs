@@ -13,11 +13,11 @@ namespace BugTracker.Models
         // Properties
         [Required]
         [Display(Name = "First Name")]
-        public string FirstName { get; set; }
+        public string? FirstName { get; set; }
 
         [Required]
         [Display(Name = "Last Name")]
-        public string LastName { get; set; }
+        public string? LastName { get; set; }
 
         [NotMapped]
         [Display(Name = "Full Name")]
@@ -25,18 +25,18 @@ namespace BugTracker.Models
 
         [NotMapped]
         [DataType(DataType.Upload)]
-        public IFormFile AvatarFormFile { get; set; }
+        public IFormFile? AvatarFormFile { get; set; }
 
         [DisplayName("Avatar")]
-        public string AvatarFileName { get; set; }
+        public string? AvatarFileName { get; set; }
 
-        public byte[] AvatarFileData { get; set; }
+        public byte[]? AvatarFileData { get; set; }
 
         [DisplayName("File Extension")]
-        public string AvatarFileType { get; set; }
+        public string? AvatarFileType { get; set; }
 
         // Navigation properties
-        public virtual Company Company { get; set; }
+        public virtual Company Company { get; set; } = null!;
         public virtual ICollection<Project> Projects { get; set; } = new HashSet<Project>();
     }
 }

@@ -10,18 +10,18 @@ namespace BugTracker.Models
         public int Id { get; set; }
 
         [DisplayName("Company")]
-        public int? CompanyId { get; set; }
+        public int CompanyId { get; set; }
 
         [DisplayName("Priority")]
-        public int? PriorityId { get; set; }
+        public int PriorityId { get; set; }
 
         // Properties
         [Required]
         [StringLength(50)]
         [DisplayName("Project Name")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         [DisplayName("Start Date")]
         public DateTimeOffset StartDate { get; set; }
@@ -33,19 +33,18 @@ namespace BugTracker.Models
 
         [NotMapped]
         [DataType(DataType.Upload)]
+        public IFormFile? ImageFile { get; set; }
 
-        public IFormFile ImageFile { get; set; }
+        public byte[]? ImageData { get; set; }
 
-        public byte[] ImageData { get; set; }
-
-        public string ImageType { get; set; }
+        public string? ImageType { get; set; }
 
         [DisplayName("File Name")]
-        public string ImageFileName { get; set; }
+        public string? ImageFileName { get; set; }
 
         // Navigation properties
-        public virtual Company Company { get; set; }
-        public virtual ProjectPriority Priority { get; set; }
+        public virtual Company Company { get; set; } = null!;
+        public virtual ProjectPriority Priority { get; set; } = null!;
         public virtual ICollection<BugTrackerUser> Members { get; set; } = new HashSet<BugTrackerUser>();
         public virtual ICollection<Ticket> Tickets { get; set; } = new HashSet<Ticket>();
     }

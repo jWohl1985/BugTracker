@@ -12,21 +12,21 @@ namespace BugTracker.Services.Interfaces
 
         Task ArchiveProjectAsync(Project project);
 
-        Task<List<Project>> GetAllProjectsByCompany(int companyId);
+        Task<List<Project>> GetAllProjectsByCompanyIdAsync(int companyId);
 
-        Task<List<Project>> GetAllProjectsByPriority(int companyId, string priorityName);
+        Task<List<Project>> GetAllProjectsByPriorityAsync(int companyId, string priorityName);
 
         Task<List<BugTrackerUser>> GetAllProjectMembersExceptPMAsync(int projectId);
 
-        Task<List<Project>> GetArchivedProjectsByCompany(int companyId);
+        Task<List<Project>> GetArchivedProjectsByCompanyAsync(int companyId);
 
         Task<List<BugTrackerUser>> GetDevelopersOnProjectAsync(int projectId);
 
-        Task<BugTrackerUser> GetProjectManagerAsync(int projectId);
+        Task<BugTrackerUser?> GetProjectManagerAsync(int projectId);
 
         Task<List<BugTrackerUser>> GetProjectMembersByRoleAsync(int projectId, string role);
 
-        Task<Project> GetProjectByIdAsync(int projectId, int companyId);
+        Task<Project?> GetProjectByIdAsync(int projectId, int companyId);
 
         Task<List<BugTrackerUser>> GetSubmittersOnProjectAsync(int projectId);
 
@@ -34,9 +34,9 @@ namespace BugTracker.Services.Interfaces
 
         Task<List<Project>> GetUserProjectsAsync(string userId);
 
-        Task<bool> IsUserOnProject(string userId, int projectId);
+        Task<bool> IsUserOnProjectAsync(string userId, int projectId);
 
-        Task<int> LookupProjectPriorityId(string priorityName);
+        Task<int?> LookupProjectPriorityIdAsync(string priorityName);
 
         Task RemoveProjectManagerAsync(int projectId);
 

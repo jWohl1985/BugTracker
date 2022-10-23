@@ -14,11 +14,13 @@ namespace BugTracker.Models
         [DisplayName("Project")]
         public int ProjectId { get; set; }
 
+        [Required]
         [DisplayName("Sender")]
-        public string SenderId { get; set; }
+        public string? SenderId { get; set; }
 
+        [Required]
         [DisplayName("Recipient")]
-        public string RecipientId { get; set; }
+        public string? RecipientId { get; set; }
 
         // Properties
         [DisplayName("Date Sent")]
@@ -32,21 +34,24 @@ namespace BugTracker.Models
         [DisplayName("Code")]
         public Guid CompanyToken { get; set; }
 
+        [Required]
         [DisplayName("Recipient Email")]
-        public string RecipientEmail { get; set; }
+        public string? RecipientEmail { get; set; }
 
+        [Required]
         [DisplayName("Recipient First Name")]
-        public string RecipientFirstName { get; set; }
+        public string? RecipientFirstName { get; set; }
 
+        [Required]
         [DisplayName("Recipient Last Name")]
-        public string RecipientLastName { get; set; }
+        public string? RecipientLastName { get; set; }
 
         public bool IsValid { get; set; }
 
         // Navigation properties
-        public virtual Company Company { get; set; }
-        public virtual Project Project { get; set; }
-        public virtual BugTrackerUser Sender { get; set; }
-        public virtual BugTrackerUser Recipient { get; set; }
+        public virtual Company Company { get; set; } = null!;
+        public virtual Project Project { get; set; } = null!;
+        public virtual BugTrackerUser Sender { get; set; } = null!;
+        public virtual BugTrackerUser Recipient { get; set; } = null!;
     }
 }

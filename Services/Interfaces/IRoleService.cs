@@ -18,6 +18,6 @@ namespace BugTracker.Services.Interfaces
 
         Task<List<BugTrackerUser>> GetUsersNotInRoleAsync(string roleName, int companyId);
 
-        Task<string> GetRoleNameByIdAsync(string roleId);
+        Task<string?> GetRoleNameByIdAsync(string roleId);
     }
 }
