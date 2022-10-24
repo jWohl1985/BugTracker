@@ -1,4 +1,6 @@
-﻿@model IEnumerable<BugTracker.Models.Project>
+﻿@using BugTracker.Services.Interfaces
+@model IEnumerable<BugTracker.Models.Project>
+@inject IFileService fileService
 
 @{
     ViewData["Title"] = "Index";
@@ -28,16 +30,7 @@
                 @Html.DisplayNameFor(model => model.Archived)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ImageData)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ImageType)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ImageFileName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Company)
+                Image
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Priority)
@@ -64,13 +57,10 @@
                 @Html.DisplayFor(modelItem => item.Archived)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.ImageData)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ImageType)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ImageFileName)
+                @if (item.ImageData is not null && item.ImageType is not null)
+                {
+                    <img src="@fileService.ConvertByteArrayToFile(item.ImageData, item.ImageType)" style="width:80px;height:80px">
+                }
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Company.Id)
