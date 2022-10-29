@@ -28,21 +28,20 @@ namespace BugTracker.Services
         public async Task ArchiveTicketAsync(Ticket ticket)
         {
             ticket.Archived = true;
-            _context.Tickets.Update(ticket);
-            await _context.SaveChangesAsync();
+            await UpdateTicketAsync(ticket);
         }
 
         public async Task AssignTicketAsync(int ticketId, string userId)
         {
             Ticket? ticket = await _context.Tickets.FirstOrDefaultAsync(t => t.Id == ticketId);
 
-            if (ticket == null)
+            if (ticket is null)
                 return;
 
             ticket.DeveloperId = userId;
             ticket.TicketStatusId = (await LookupTicketStatusIdAsync("Development")).Value;
-            _context.Tickets.Update(ticket);
-            await _context.SaveChangesAsync();
+
+            await UpdateTicketAsync(ticket);
         }
 
         public async Task<List<Ticket>> GetAllTicketsByCompanyAsync(int companyId)
@@ -169,7 +168,14 @@ namespace BugTracker.Services
 
         public async Task<Ticket?> GetTicketByIdAsync(int ticketId)
         {
-            Ticket? ticket = await _context.Tickets.FirstOrDefaultAsync(t => t.Id == ticketId);
+            Ticket? ticket = await _context.Tickets
+                    .Include(t => t.Priority)
+                    .Include(t => t.Status)
+                    .Include(t => t.Type)
+                    .Include(t => t.Project)
+                    .Include(t => t.Developer)
+                    .Include(t => t.Creator)
+                    .FirstOrDefaultAsync(t => t.Id == ticketId);
 
             if (ticket is null)
                 return null;

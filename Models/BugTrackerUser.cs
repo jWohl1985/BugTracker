@@ -8,6 +8,7 @@ namespace BugTracker.Models
     public class BugTrackerUser : IdentityUser
     {
         // Keys
+        [Required]
         public int? CompanyId { get; set; }
 
         // Properties

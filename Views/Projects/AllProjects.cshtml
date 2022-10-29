@@ -1,16 +1,25 @@
-﻿@using BugTracker.Services.Interfaces
+﻿@using BugTracker.Models.Enums
+@using BugTracker.Services.Interfaces
+@using Microsoft.AspNetCore.Identity
 @model IEnumerable<BugTracker.Models.Project>
-@inject IFileService fileService
+
+@inject UserManager<BugTrackerUser> userManager
+@inject IProjectService projectService
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "All Projects";
+    BugTrackerUser bugTrackerUser = await userManager.GetUserAsync(User);
 }
 
-<h1>Index</h1>
+<h1>All Projects</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+@if (User.IsInRole(nameof(Roles.Admin)) || User.IsInRole(nameof(Roles.ProjectManager)))
+{
+    <p>
+        <a asp-action="Create">Create New</a>
+    </p>
+}
+
 <table class="table">
     <thead>
         <tr>
@@ -70,15 +79,24 @@
                 @Html.DisplayFor(modelItem => item.Priority.Id)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
                 <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                @if (item.Archived)
-                {
-                     <a asp-action="Restore" asp-route-id="@item.Id">Restore</a>
+
+                @{
+                    bool userIsProjectManager = (await projectService.GetProjectManagerAsync(item.Id))?.Id == bugTrackerUser.Id;
                 }
-                else
+
+                @if (User.IsInRole(nameof(Roles.Admin)) || userIsProjectManager)
                 {
-                    <a asp-action="Archive" asp-route-id="@item.Id">Archive</a>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+
+                    @if(item.Archived)
+                    {
+                        <a asp-action="Restore" asp-route-id="@item.Id">Restore</a>
+                    }
+                    else
+                    {
+                        <a asp-action="Archive" asp-route-id="@item.Id">Archive</a>
+                    }
                 }
             </td>
         </tr>

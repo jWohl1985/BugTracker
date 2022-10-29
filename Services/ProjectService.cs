@@ -80,8 +80,14 @@ namespace BugTracker.Services
         public async Task ArchiveProjectAsync(Project project)
         {
             project.Archived = true;
-            _context.Projects.Update(project);
-            await _context.SaveChangesAsync();
+            await UpdateProjectAsync(project);
+
+            foreach (Ticket ticket in project.Tickets)
+            {
+                ticket.ArchivedByProject = true;
+                _context.Tickets.Update(ticket);
+                await _context.SaveChangesAsync();
+            }
         }
 
         public async Task<List<BugTrackerUser>> GetAllProjectMembersExceptPMAsync(int projectId)
@@ -131,22 +137,51 @@ namespace BugTracker.Services
 
         public async Task<List<Project>> GetArchivedProjectsByCompanyAsync(int companyId)
         {
-            return (await GetAllProjectsByCompanyIdAsync(companyId))
-                .Where(p => p.Archived)
-                .ToList();
+            return await _context.Projects
+                .Where(p => p.CompanyId == companyId && p.Archived)
+                .Include(p => p.Members)
+                .Include(p => p.Priority)
+                .Include(p => p.Tickets)
+                    .ThenInclude(t => t.Type)
+                .Include(p => p.Tickets)
+                    .ThenInclude(t => t.Status)
+                .Include(p => p.Tickets)
+                    .ThenInclude(t => t.Priority)
+                .Include(p => p.Tickets)
+                    .ThenInclude(t => t.Creator)
+                .Include(p => p.Tickets)
+                    .ThenInclude(t => t.Developer)
+                .Include(p => p.Tickets)
+                    .ThenInclude(t => t.Comments)
+                .Include(p => p.Tickets)
+                    .ThenInclude(t => t.History)
+                .Include(p => p.Tickets)
+                    .ThenInclude(t => t.Attachments)
+                .Include(p => p.Tickets)
+                    .ThenInclude(t => t.Notifications)
+                .ToListAsync();
         }
 
-        public async Task<List<BugTrackerUser>> GetDevelopersOnProjectAsync(int projectId)
+        /*public async Task<List<BugTrackerUser>> GetDevelopersOnProjectAsync(int projectId)
         {
             throw new NotImplementedException();
-        }
+        }*/
 
         public async Task<Project?> GetProjectByIdAsync(int projectId, int companyId)
         {
             return await _context.Projects
                 .Include(p => p.Members)
-                .Include(p => p.Tickets)
                 .Include(p => p.Priority)
+                .Include(p => p.Tickets)
+                    .ThenInclude(t => t.Priority)
+                .Include(p => p.Tickets)
+                    .ThenInclude(t => t.Status)
+                .Include(p => p.Tickets)
+                    .ThenInclude(t => t.Type)
+                .Include(p => p.Tickets)
+                    .ThenInclude(t => t.Developer)
+                .Include(p => p.Tickets)
+                    .ThenInclude(t => t.Creator)
                 .FirstOrDefaultAsync(p => p.Id == projectId && p.CompanyId == companyId);
         }
 
@@ -185,10 +220,10 @@ namespace BugTracker.Services
             return users;
         }
 
-        public async Task<List<BugTrackerUser>> GetSubmittersOnProjectAsync(int projectId)
+        /*public async Task<List<BugTrackerUser>> GetSubmittersOnProjectAsync(int projectId)
         {
             throw new NotImplementedException();
-        }
+        }*/
 
         public async Task<List<Project>> GetUserProjectsAsync(string userId)
         {
@@ -328,6 +363,19 @@ namespace BugTracker.Services
             {
                 Console.WriteLine($"*** ERROR *** - Error removing users in role {role} from project - {ex.Message}");
                 throw;
+            }
+        }
+
+        public async Task RestoreArchivedProjectAsync(Project project)
+        {
+            project.Archived = false;
+            await UpdateProjectAsync(project);
+
+            foreach (Ticket ticket in project.Tickets)
+            {
+                ticket.ArchivedByProject = false;
+                _context.Tickets.Update(ticket);
+                await _context.SaveChangesAsync();
             }
         }
 

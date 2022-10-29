@@ -1,0 +1,68 @@
+﻿@using BugTracker.Services.Interfaces
+@model BugTracker.Models.Project
+
+@{
+    ViewData["Title"] = "Restore";
+}
+
+<h1>Restore</h1>
+
+<h3>Are you sure you want to restore this project?</h3>
+<div>
+    <h4>Project</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Description)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Description)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.StartDate)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.StartDate)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.EndDate)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.EndDate)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Archived)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Archived)
+        </dd>
+        <dt class = "col-sm-2">
+            Project Image
+        </dt>
+        <dd class = "col-sm-10">
+            @if (Model.ImageData is not null && Model.ImageType is not null)
+            {
+                <img class="img-fluid img-thumbnail" style="width:80px;height:80px"
+                    src="data:image/*;base64,@(Convert.ToBase64String(Model.ImageData))">
+            }
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Priority)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Priority.Id)
+        </dd>
+    </dl>
+    
+    <form asp-action="Restore" method="post">
+        <input type="hidden" asp-for="Id" />
+        <input type="submit" value="Restore" class="btn btn-success" /> |
+        <a asp-action="Index">Back to List</a>
+    </form>
+</div>
