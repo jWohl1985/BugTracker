@@ -25,6 +25,18 @@ namespace BugTracker.Services
             await _context.SaveChangesAsync();
         }
 
+        public async Task AddTicketCommentAsync(TicketComment ticketComment)
+        {
+            await _context.TicketComments.AddAsync(ticketComment);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task AddTicketAttachmentAsync(TicketAttachment ticketAttachment)
+        {
+            await _context.TicketAttachments.AddAsync(ticketAttachment);
+            await _context.SaveChangesAsync();
+        }
+
         public async Task ArchiveTicketAsync(Ticket ticket)
         {
             ticket.Archived = true;
@@ -175,12 +187,22 @@ namespace BugTracker.Services
                     .Include(t => t.Project)
                     .Include(t => t.Developer)
                     .Include(t => t.Creator)
+                    .Include(t => t.Comments)
+                    .Include(t => t.History)
+                    .Include(t => t.Attachments)
                     .FirstOrDefaultAsync(t => t.Id == ticketId);
 
             if (ticket is null)
                 return null;
 
             return ticket;
+        }
+
+        public async Task<TicketAttachment?> GetTicketAttachmentByIdAsync(int ticketAttachmentId)
+        {
+            return await _context.TicketAttachments
+                    .Include(t => t.User)
+                    .FirstOrDefaultAsync(t => t.Id == ticketAttachmentId);
         }
 
         public async Task<BugTrackerUser?> GetTicketDeveloperAsync(int ticketId, int companyId)
@@ -256,6 +278,13 @@ namespace BugTracker.Services
             }
 
             return userTickets;
+        }
+
+        public async Task<List<Ticket>> GetUnassignedTicketsAsync(int companyId)
+        {
+            return (await GetAllTicketsByCompanyAsync(companyId))
+                .Where(t => string.IsNullOrEmpty(t.DeveloperId))
+                .ToList();
         }
 
         public async Task<int?> LookupTicketPriorityIdAsync(string priorityName)

@@ -1,7 +1,4 @@
-﻿@using BugTracker.Models.Enums
-@using BugTracker.Services.Interfaces
-@using Microsoft.AspNetCore.Identity
-@model BugTracker.Models.Project
+﻿@model Project
 
 @inject UserManager<BugTrackerUser> userManager
 @inject IProjectService projectService
@@ -112,7 +109,7 @@
                                             {
                                                 <span>
                                                     <a class="btn btn-xs btn-outline-info" style="font:small"
-                                                     asp-action="AssignProjectManager" asp-controller="Home" asp-route-id="@Model.Id">Assign PM</a>
+                                                     asp-action="AssignProjectManager" asp-controller="Projects" asp-route-id="@Model.Id">Assign PM</a>
                                                 </span>
                                             }
                                         </div>
@@ -222,7 +219,7 @@
                                                       {
                                                           if (User.IsInRole(nameof(Roles.Admin)) || User.IsInRole(nameof(Roles.ProjectManager)))
                                                           {
-                                                              <a class="btn btn-xs btn-info" asp-action="AssignDeveloper" asp-controller="Home" asp-route-ticketId="@ticket.Id">Assign Dev</a>
+                                                              <a class="btn btn-xs btn-info" asp-action="AssignDeveloper" asp-controller="Tickets" asp-route-id="@ticket.Id">Assign Dev</a>
                                                           }
 
                                                       }

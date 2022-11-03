@@ -1,0 +1,146 @@
+﻿@model IEnumerable<Ticket>
+
+@inject UserManager<BugTrackerUser> userManager
+@inject IProjectService projectService
+
+@{
+    ViewData["Title"] = "All Tickets";
+    BugTrackerUser currentUser = await userManager.GetUserAsync(User);
+
+    async Task<bool> UserCanEdit(Ticket ticket)
+    {
+        if (User.IsInRole(nameof(Roles.Admin)))
+            return true;
+
+        if (ticket.DeveloperId == currentUser.Id)
+            return true;
+
+        if (ticket.CreatorId == currentUser.Id)
+            return true;
+
+        if (await projectService.IsAssignedProjectManagerAsync(currentUser.Id, ticket.ProjectId))
+            return true;
+
+        return false;
+    }
+
+    async Task<bool> UserCanArchive(Ticket ticket)
+    {
+        if (User.IsInRole(nameof(Roles.Admin)))
+            return true;
+
+        if (await projectService.IsAssignedProjectManagerAsync(currentUser.Id, ticket.ProjectId))
+            return true;
+
+        return false;
+    }
+}
+
+<h1>All Tickets</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Title)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Created)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Updated)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Archived)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Project)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Type)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Status)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Priority)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Creator)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Developer)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+
+        @foreach (var item in Model) 
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Title)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Created)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Updated)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Archived)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Project.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Type.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Status.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Priority.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Creator.FullName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Developer.FullName)
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a>
+                    @if (await UserCanEdit(item))
+                    {
+                        <span>|</span>
+                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> 
+                    }
+                    @if (await UserCanArchive(item))
+                    {
+                        <span>|</span>
+                        if (!item.Archived)
+                        {
+                            <a asp-action="Archive" asp-route-id="@item.Id">Archive</a>
+                        }
+                        else
+                        {
+                            <a asp-action="Restore" asp-route-id="@item.Id">Restore</a>
+                        }
+                    }
+
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

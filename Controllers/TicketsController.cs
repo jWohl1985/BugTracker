@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.IO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,7 @@ using Microsoft.AspNetCore.Identity;
 using BugTracker.Extensions;
 using BugTracker.Models.Enums;
 using BugTracker.Services.Interfaces;
+using BugTracker.Models.ViewModels;
 
 namespace BugTracker.Controllers
 {
@@ -22,18 +24,21 @@ namespace BugTracker.Controllers
         private readonly IProjectService _projectService;
         private readonly ILookupService _lookupService;
         private readonly ITicketService _ticketService;
+        private readonly IFileService _fileService;
 
         public TicketsController(ApplicationDbContext context,
             UserManager<BugTrackerUser> userManager,
             IProjectService projectService,
             ILookupService lookupService,
-            ITicketService ticketService)
+            ITicketService ticketService,
+            IFileService fileService)
         {
             _context = context;
             _userManager = userManager;
             _projectService = projectService;
             _lookupService = lookupService;
             _ticketService = ticketService;
+            _fileService = fileService;
         }
 
 
@@ -45,25 +50,100 @@ namespace BugTracker.Controllers
 
         [Authorize]
         [HttpGet]
+        public async Task<IActionResult> MyTickets()
+        {
+            BugTrackerUser currentUser = await _userManager.GetUserAsync(User);
+            int companyId = User.Identity!.GetCompanyId();
+
+            List<Ticket> userTickets = await _ticketService.GetTicketsByUserIdAsync(currentUser.Id, companyId);
+
+            return View(userTickets);
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> AllTickets()
+        {
+            int companyId = User.Identity!.GetCompanyId();
+
+            List<Ticket> allTickets = await _ticketService.GetAllTicketsByCompanyAsync(companyId);
+
+            if (User.IsInRole(nameof(Roles.Admin)) || User.IsInRole(nameof(Roles.ProjectManager)))
+            {
+                return View(allTickets);
+                
+            }
+            else
+            {
+                IEnumerable<Ticket> activeTickets = allTickets.Where(t => !t.Archived);
+                return View(activeTickets);
+            }
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> ArchivedTickets()
+        {
+            int companyId = User.Identity!.GetCompanyId();
+            List<Ticket> archivedTickets = await _ticketService.GetArchivedTicketsAsync(companyId);
+
+            return View(archivedTickets);
+        }
+
+        [Authorize(Roles = "Admin,ProjectManager")]
+        [HttpGet]
+        public async Task<IActionResult> UnassignedTickets()
+        {
+            int companyId = User.Identity!.GetCompanyId();
+            string userId = _userManager.GetUserId(User);
+            List<Ticket> allUnassignedTickets = await _ticketService.GetUnassignedTicketsAsync(companyId);
+
+            if (User.IsInRole(nameof(Roles.Admin)))
+            {
+                return View(allUnassignedTickets);
+            }
+            else // User is project manager, get the unassigned tickets for their project
+            {
+                List<Ticket> myUnassignedTickets = new();
+                foreach(Ticket ticket in allUnassignedTickets)
+                {
+                    if (await _projectService.IsAssignedProjectManagerAsync(userId, ticket.ProjectId))
+                        myUnassignedTickets.Add(ticket);
+                }
+
+                return View(myUnassignedTickets);
+            }
+        }
+
+
+        [Authorize(Roles = "Admin,ProjectManager")]
+        [HttpGet]
+        public async Task<IActionResult> AssignDeveloper(int id)
+        {
+            Ticket? ticket = await _ticketService.GetTicketByIdAsync(id);
+
+            if (ticket is null)
+                return NotFound();
+
+            AssignDeveloperViewModel model = new();
+            model.Ticket = ticket;
+            List<BugTrackerUser> developers = await _projectService.GetProjectMembersByRoleAsync(model.Ticket.ProjectId, nameof(Roles.Developer));
+            model.DeveloperList = new SelectList(developers, "Id", "FullName");
+
+            return View(model);
+        }
+
+        [Authorize]
+        [HttpGet]
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _context.Tickets == null)
-            {
+            if (id is null)
                 return NotFound();
-            }
 
-            var ticket = await _context.Tickets
-                .Include(t => t.Creator)
-                .Include(t => t.Developer)
-                .Include(t => t.Priority)
-                .Include(t => t.Project)
-                .Include(t => t.Status)
-                .Include(t => t.Type)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (ticket == null)
-            {
+            Ticket? ticket = await _ticketService.GetTicketByIdAsync(id.Value);
+
+            if (ticket is null)
                 return NotFound();
-            }
 
             return View(ticket);
         }
@@ -81,6 +161,8 @@ namespace BugTracker.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,ProjectId,Title,Description,TicketTypeId,TicketPriorityId,")] Ticket ticket)
         {
+            RemoveNavigationPropertyModelErrors(ticket);
+
             if (!ModelState.IsValid)
             {
                 await GenerateTicketCreationViewData();
@@ -100,7 +182,7 @@ namespace BugTracker.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id is null || _context.Tickets is null)
+            if (id is null)
                 return NotFound();
 
             Ticket? ticket = await _ticketService.GetTicketByIdAsync(id.Value);
@@ -119,6 +201,8 @@ namespace BugTracker.Controllers
         {
             if (id != ticket.Id)
                 return NotFound();
+
+            RemoveNavigationPropertyModelErrors(ticket);
 
             if (!ModelState.IsValid)
             {
@@ -140,6 +224,71 @@ namespace BugTracker.Controllers
             }
 
             return RedirectToAction(nameof(Index));
+        }
+
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddTicketComment([Bind("Id,TicketId,Comment")]TicketComment ticketComment)
+        {
+            ModelState.Remove(nameof(ticketComment.User));
+            ModelState.Remove(nameof(ticketComment.Ticket));
+            ModelState.Remove(nameof(ticketComment.UserId));
+
+            if (ModelState.IsValid)
+            {
+                ticketComment.UserId = _userManager.GetUserId(User);
+                ticketComment.Created = DateTimeOffset.Now;
+                await _ticketService.AddTicketCommentAsync(ticketComment);
+            }
+
+            return RedirectToAction(nameof(Details), new { id = ticketComment.TicketId });
+        }
+
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddTicketAttachment([Bind("Id,FormFile,Description,TicketId")]TicketAttachment ticketAttachment)
+        {
+            ModelState.Remove(nameof(ticketAttachment.FileData));
+            ModelState.Remove(nameof(ticketAttachment.FileName));
+            ModelState.Remove(nameof(ticketAttachment.FileType));
+            ModelState.Remove(nameof(ticketAttachment.Ticket));
+            ModelState.Remove(nameof(ticketAttachment.User));
+            ModelState.Remove(nameof(ticketAttachment.FormFile));
+            ModelState.Remove(nameof(ticketAttachment.UserId));
+
+            if (!ModelState.IsValid)
+            {
+                return RedirectToAction(nameof(Details), new { id = ticketAttachment.TicketId });
+            }
+
+            ticketAttachment.FileData = await _fileService.ConvertFileToByteArrayAsync(ticketAttachment.FormFile);
+            ticketAttachment.FileName = ticketAttachment.FormFile.FileName;
+            ticketAttachment.FileType = ticketAttachment.FormFile.ContentType;
+            ticketAttachment.Created = DateTimeOffset.Now;
+            ticketAttachment.UserId = _userManager.GetUserId(User);
+
+            await _ticketService.AddTicketAttachmentAsync(ticketAttachment);
+
+            return RedirectToAction(nameof(Details), new { id = ticketAttachment.TicketId });
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> ShowFile(int id)
+        {
+            TicketAttachment? ticketAttachment = await _ticketService.GetTicketAttachmentByIdAsync(id);
+
+            if (ticketAttachment is null)
+                return NotFound();
+
+            string fileName = ticketAttachment.FileName;
+            byte[] fileData = ticketAttachment.FileData;
+            string ext = Path.GetExtension(fileName).Replace(".", "");
+
+            Response.Headers.Add("Content-Disposition", $"inline; filename={fileName}");
+            return File(fileData, $"application/{ext}");
         }
 
         [Authorize]
@@ -231,6 +380,16 @@ namespace BugTracker.Controllers
             ViewData["TicketPriorityId"] = new SelectList(await _lookupService.GetTicketPrioritiesAsync(), "Id", "Name", ticket.TicketPriorityId);
             ViewData["TicketStatusId"] = new SelectList(await _lookupService.GetTicketStatusesAsync(), "Id", "Name", ticket.TicketStatusId);
             ViewData["TicketTypeId"] = new SelectList(await _lookupService.GetTicketTypesAsync(), "Id", "Name", ticket.TicketTypeId);
+        }
+
+        private void RemoveNavigationPropertyModelErrors(Ticket ticket)
+        {
+            ModelState.Remove(nameof(ticket.Developer));
+            ModelState.Remove(nameof(ticket.Creator));
+            ModelState.Remove(nameof(ticket.Project));
+            ModelState.Remove(nameof(ticket.Priority));
+            ModelState.Remove(nameof(ticket.Status));
+            ModelState.Remove(nameof(ticket.Type));
         }
     }
 }

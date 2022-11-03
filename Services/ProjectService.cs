@@ -271,6 +271,19 @@ namespace BugTracker.Services
                 .ToListAsync();
         }
 
+        public async Task<bool> IsAssignedProjectManagerAsync(string userId, int projectId)
+        {
+            BugTrackerUser? projectManager = await GetProjectManagerAsync(projectId);
+
+            if (projectManager is null)
+                return false;
+
+            if (projectManager.Id == userId)
+                return true;
+            else
+                return false;
+        }
+
         public async Task<bool> IsUserOnProjectAsync(string userId, int projectId)
         {
             var project = await _context.Projects

@@ -46,12 +46,12 @@ namespace BugTracker.Models
         public bool ArchivedByProject { get; set; }
 
         // Navigation properties
-        public virtual Project? Project { get; set; }
-        public virtual TicketType? Type { get; set; }
-        public virtual TicketStatus? Status { get; set; }
-        public virtual TicketPriority? Priority { get; set; }
-        public virtual BugTrackerUser? Creator { get; set; }
-        public virtual BugTrackerUser? Developer { get; set; }
+        public virtual Project Project { get; set; } = default!;
+        public virtual TicketType Type { get; set; } = default!;
+        public virtual TicketStatus Status { get; set; } = default!;
+        public virtual TicketPriority Priority { get; set; } = default!;
+        public virtual BugTrackerUser Creator { get; set; } = default!;
+        public virtual BugTrackerUser Developer { get; set; } = default!;
         public virtual ICollection<TicketComment> Comments { get; set; } = new HashSet<TicketComment>();
         public virtual ICollection<TicketAttachment> Attachments { get; set; } = new HashSet<TicketAttachment>();
         public virtual ICollection<TicketHistory> History { get; set; } = new HashSet<TicketHistory>();
