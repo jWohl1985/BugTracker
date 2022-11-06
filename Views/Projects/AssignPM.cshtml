@@ -1,0 +1,34 @@
+﻿@model AssignPMViewModel
+
+@{
+	ViewData["Title"] = "Assign PM";
+}
+
+<h1>Project: @Model.Project.Name</h1>
+<h4>Assign Project Manager</h4>
+<hr/>
+
+<div class="row">
+	<div class="col-md-4">
+		<form asp-controller="Projects" asp-action="AssignPM" method="post">
+			<input type="hidden" asp-for="Project.Id" />
+
+			<h2>@Model.Project.Name</h2>
+			<p>@Model.Project.Description</p>
+
+			<div class="form-group">
+				<label class="form-label">Select Project Manager</label>
+				<select class="form-select" asp-for="ProjectManagerId" asp-items="@Model.ProjectManagers">
+					<option></option>
+				</select>
+			</div>
+
+			<input type="submit" value="Assign" class="btn btn-primary"/>
+
+		</form>
+	</div>
+</div>
+
+<div>
+	<a asp-action="UnassignedProjects">Back</a>
+</div>

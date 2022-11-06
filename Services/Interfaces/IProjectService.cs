@@ -30,6 +30,8 @@ namespace BugTracker.Services.Interfaces
 
         //Task<List<BugTrackerUser>> GetSubmittersOnProjectAsync(int projectId);
 
+        Task<List<Project>> GetUnassignedProjectsAsync(int companyId);
+
         Task<List<BugTrackerUser>> GetUsersNotOnProjectAsync(int projectId, int companyId);
 
         Task<List<Project>> GetUserProjectsAsync(string userId);

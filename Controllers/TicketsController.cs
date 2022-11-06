@@ -133,6 +133,17 @@ namespace BugTracker.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "Admin,ProjectManager")]
+        [HttpPost]
+        public async Task<IActionResult> AssignDeveloper(AssignDeveloperViewModel model)
+        {
+            if (model.DeveloperId is null)
+                return RedirectToAction(nameof(AssignDeveloper), new { id = model.Ticket.Id });
+
+            await _ticketService.AssignTicketAsync(model.Ticket.Id, model.DeveloperId);
+            return RedirectToAction(nameof(Details), new { id = model.Ticket.Id });
+        }
+
         [Authorize]
         [HttpGet]
         public async Task<IActionResult> Details(int? id)

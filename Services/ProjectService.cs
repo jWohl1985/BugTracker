@@ -225,6 +225,27 @@ namespace BugTracker.Services
             throw new NotImplementedException();
         }*/
 
+        public async Task<List<Project>> GetUnassignedProjectsAsync(int companyId)
+        {
+            List<Project> unassignedProjects = new();
+
+            List<Project> companyProjects = await _context.Projects
+                .Include(p => p.Priority)
+                .Where(p => p.CompanyId == companyId)
+                .ToListAsync();
+
+            foreach (Project project in companyProjects)
+            {
+                List<BugTrackerUser> projectManagers = await GetProjectMembersByRoleAsync(project.Id, nameof(Roles.ProjectManager));
+                if (projectManagers.Count == 0)
+                {
+                    unassignedProjects.Add(project);
+                }
+            }
+
+            return unassignedProjects;
+        }
+
         public async Task<List<Project>> GetUserProjectsAsync(string userId)
         {
             try
