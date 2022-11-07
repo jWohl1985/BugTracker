@@ -25,13 +25,15 @@ namespace BugTracker.Controllers
         private readonly ILookupService _lookupService;
         private readonly ITicketService _ticketService;
         private readonly IFileService _fileService;
+        private readonly ITicketHistoryService _historyService;
 
         public TicketsController(ApplicationDbContext context,
             UserManager<BugTrackerUser> userManager,
             IProjectService projectService,
             ILookupService lookupService,
             ITicketService ticketService,
-            IFileService fileService)
+            IFileService fileService,
+            ITicketHistoryService historyService)
         {
             _context = context;
             _userManager = userManager;
@@ -39,6 +41,7 @@ namespace BugTracker.Controllers
             _lookupService = lookupService;
             _ticketService = ticketService;
             _fileService = fileService;
+            _historyService = historyService;
         }
 
 
@@ -140,7 +143,15 @@ namespace BugTracker.Controllers
             if (model.DeveloperId is null)
                 return RedirectToAction(nameof(AssignDeveloper), new { id = model.Ticket.Id });
 
+            BugTrackerUser user = await _userManager.GetUserAsync(User);
+            Ticket? oldTicket = await _ticketService.GetTicketAsNoTrackingAsync(model.Ticket.Id);
+
             await _ticketService.AssignTicketAsync(model.Ticket.Id, model.DeveloperId);
+
+            Ticket? newTicket = await _ticketService.GetTicketAsNoTrackingAsync(model.Ticket.Id);
+
+            await _historyService.AddHistoryAsync(oldTicket!, newTicket!, user.Id);
+
             return RedirectToAction(nameof(Details), new { id = model.Ticket.Id });
         }
 
@@ -170,7 +181,7 @@ namespace BugTracker.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,ProjectId,Title,Description,TicketTypeId,TicketPriorityId,")] Ticket ticket)
+        public async Task<IActionResult> Create([Bind("Id,ProjectId,Title,Description,TicketTypeId,TicketPriorityId")] Ticket ticket)
         {
             RemoveNavigationPropertyModelErrors(ticket);
 
@@ -185,6 +196,10 @@ namespace BugTracker.Controllers
             ticket.TicketStatusId = (await _ticketService.LookupTicketStatusIdAsync(nameof(TickStatus.New))).Value;
 
             await _ticketService.AddNewTicketAsync(ticket);
+
+            BugTrackerUser user = await _userManager.GetUserAsync(User);
+            Ticket? newTicket = await _ticketService.GetTicketAsNoTrackingAsync(ticket.Id);
+            await _historyService.AddHistoryAsync(null, newTicket!, user.Id);
 
             return RedirectToAction(nameof(Index));
         }
@@ -221,6 +236,9 @@ namespace BugTracker.Controllers
                 return View(ticket);
             }
 
+            BugTrackerUser user = await _userManager.GetUserAsync(User);
+            Ticket? oldTicket = await _ticketService.GetTicketAsNoTrackingAsync(ticket.Id);
+
             try
             {
                 ticket.Updated = DateTimeOffset.Now;
@@ -233,6 +251,10 @@ namespace BugTracker.Controllers
                 else
                     throw;
             }
+
+            Ticket? newTicket = await _ticketService.GetTicketAsNoTrackingAsync(ticket.Id);
+
+            await _historyService.AddHistoryAsync(oldTicket!, newTicket!, user.Id);
 
             return RedirectToAction(nameof(Index));
         }
@@ -251,6 +273,7 @@ namespace BugTracker.Controllers
                 ticketComment.UserId = _userManager.GetUserId(User);
                 ticketComment.Created = DateTimeOffset.Now;
                 await _ticketService.AddTicketCommentAsync(ticketComment);
+                await _historyService.AddHistoryAsync(ticketComment.TicketId, "comment", ticketComment.UserId);
             }
 
             return RedirectToAction(nameof(Details), new { id = ticketComment.TicketId });
@@ -281,6 +304,7 @@ namespace BugTracker.Controllers
             ticketAttachment.UserId = _userManager.GetUserId(User);
 
             await _ticketService.AddTicketAttachmentAsync(ticketAttachment);
+            await _historyService.AddHistoryAsync(ticketAttachment.TicketId, "attachment", ticketAttachment.UserId);
 
             return RedirectToAction(nameof(Details), new { id = ticketAttachment.TicketId });
         }

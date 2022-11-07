@@ -178,6 +178,20 @@ namespace BugTracker.Services
                 .ToList();
         }
 
+        public async Task<Ticket?> GetTicketAsNoTrackingAsync(int ticketId)
+        {
+            Ticket? ticket = await _context.Tickets
+                    .Include(t => t.Priority)
+                    .Include(t => t.Status)
+                    .Include(t => t.Type)
+                    .Include(t => t.Project)
+                    .Include(t => t.Developer)
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(t => t.Id == ticketId);
+
+            return ticket is not null ? ticket : null;
+        }
+
         public async Task<Ticket?> GetTicketByIdAsync(int ticketId)
         {
             Ticket? ticket = await _context.Tickets
