@@ -18,39 +18,28 @@ namespace BugTracker.Controllers
 {
     public class ProjectsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ICompanyInfoService _companyInfoService;
+        private readonly IProjectService _projectService;
         private readonly IRoleService _roleService;
         private readonly ILookupService _lookupService;
         private readonly IFileService _fileService;
-        private readonly IProjectService _projectService;
-        private readonly ICompanyInfoService _companyInfoService;
         private readonly UserManager<BugTrackerUser> _userManager;
 
-        public ProjectsController(ApplicationDbContext context,
+        public ProjectsController(
+            ICompanyInfoService companyInfoService,
+            IProjectService projectService,
             IRoleService roleService,
             ILookupService lookupService,
             IFileService fileService,
-            IProjectService projectService,
-            UserManager<BugTrackerUser> userManager,
-            ICompanyInfoService companyInfoService)
+            UserManager<BugTrackerUser> userManager
+            )
         {
-            _context = context;
+            _companyInfoService = companyInfoService;
+            _projectService = projectService;
             _roleService = roleService;
             _lookupService = lookupService;
             _fileService = fileService;
-            _projectService = projectService;
             _userManager = userManager;
-            _companyInfoService = companyInfoService;
-        }
-
-        [Authorize]
-        [HttpGet]
-        public async Task<ViewResult> Index()
-        {
-            int companyId = User.Identity!.GetCompanyId();
-            var companyProjects = await _companyInfoService.GetAllProjectsAsync(companyId);
-
-            return View(companyProjects);
         }
 
         [Authorize]
@@ -164,8 +153,8 @@ namespace BugTracker.Controllers
             if (project is null || model.Members is null)
                 return RedirectToAction(nameof(AssignMembers), new { id = model.Project.Id });
 
-            await ClearAllProjectMembersExceptPM(project);
-            await AddSelectedProjectMembers(model.Members, project.Id);
+            await ClearAllProjectMembersExceptPMAsync(project);
+            await AddProjectMembersAsync(model.Members, project.Id);
 
             return RedirectToAction(nameof(Details), new { id = model.Project.Id });
         }
@@ -297,7 +286,7 @@ namespace BugTracker.Controllers
         [HttpGet]
         public async Task<IActionResult> Archive(int? id)
         {
-            if (id is null || _context.Projects is null)
+            if (id is null)
                 return NotFound();
 
             int companyId = User.Identity!.GetCompanyId();
@@ -323,14 +312,14 @@ namespace BugTracker.Controllers
 
             await _projectService.ArchiveProjectAsync(project);
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(AllProjects));
         }
 
         [Authorize]
         [HttpGet]
         public async Task<IActionResult> Restore(int? id)
         {
-            if (id is null || _context.Projects is null)
+            if (id is null)
                 return NotFound();
 
             int companyId = User.Identity!.GetCompanyId();
@@ -356,12 +345,12 @@ namespace BugTracker.Controllers
 
             await _projectService.RestoreArchivedProjectAsync(project);
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(AllProjects));
         }
 
 
         #region HelperMethods
-        private async Task ClearAllProjectMembersExceptPM(Project project)
+        private async Task ClearAllProjectMembersExceptPMAsync(Project project)
         {
             List<string> previousMembers = (await _projectService.GetAllProjectMembersExceptPMAsync(project.Id)).Select(m => m.Id).ToList();
             foreach (string userId in previousMembers)
@@ -370,7 +359,7 @@ namespace BugTracker.Controllers
             }
         }
 
-        private async Task AddSelectedProjectMembers(List<string> memberIds, int projectId)
+        private async Task AddProjectMembersAsync(List<string> memberIds, int projectId)
         {
             foreach (string userId in memberIds)
             {

@@ -19,36 +19,28 @@ namespace BugTracker.Controllers
 {
     public class TicketsController : Controller
     {
-        private readonly ApplicationDbContext _context;
-        private readonly UserManager<BugTrackerUser> _userManager;
         private readonly IProjectService _projectService;
-        private readonly ILookupService _lookupService;
         private readonly ITicketService _ticketService;
-        private readonly IFileService _fileService;
         private readonly ITicketHistoryService _historyService;
-
-        public TicketsController(ApplicationDbContext context,
-            UserManager<BugTrackerUser> userManager,
+        private readonly ILookupService _lookupService;
+        private readonly IFileService _fileService;
+        private readonly UserManager<BugTrackerUser> _userManager;
+        
+        public TicketsController(
             IProjectService projectService,
-            ILookupService lookupService,
             ITicketService ticketService,
+            ITicketHistoryService historyService,
+            ILookupService lookupService,
             IFileService fileService,
-            ITicketHistoryService historyService)
+            UserManager<BugTrackerUser> userManager
+            )
         {
-            _context = context;
-            _userManager = userManager;
             _projectService = projectService;
-            _lookupService = lookupService;
             _ticketService = ticketService;
-            _fileService = fileService;
             _historyService = historyService;
-        }
-
-
-        public async Task<IActionResult> Index()
-        {
-            var applicationDbContext = _context.Tickets.Include(t => t.Creator).Include(t => t.Developer).Include(t => t.Priority).Include(t => t.Project).Include(t => t.Status).Include(t => t.Type);
-            return View(await applicationDbContext.ToListAsync());
+            _fileService = fileService;
+            _lookupService = lookupService;
+            _userManager = userManager;
         }
 
         [Authorize]
