@@ -27,8 +27,8 @@
                     {
                         <ul class="nav nav-pills flex-sm-column flex-row flex-nowrap flex-shrink-1 flex-sm-grow-0 flex-grow-1 mb-sm-auto mb-0 justify-content-center align-items-center align-items-sm-start" id="menu">
                             <li class="nav-item">
-                                <a asp-controller="Home" asp-action="Index" class="nav-link px-sm-0 px-2">
-                                    <i class="fs-5 bi-house"></i><span class="ms-1 d-none d-sm-inline">Home</span>
+                                <a asp-controller="Home" asp-action="Dashboard" class="nav-link px-sm-0 px-2">
+                                    <i class="fs-5 bi-house"></i><span class="ms-1 d-none d-sm-inline">Dashboard</span>
                                 </a>
                             </li>
                             <li>
@@ -64,7 +64,6 @@
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdown">
                                     <li><a class="dropdown-item" asp-controller="Tickets" asp-action="Create">New ticket...</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Tickets" asp-action="Index">Index</a></li>
                                     @if (!User.IsInRole(nameof(Roles.Admin)))
                                     {
                                         <li><a class="dropdown-item" asp-controller="Tickets" asp-action="MyTickets">My Tickets</a></li>

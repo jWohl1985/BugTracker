@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace BugTracker.Controllers
 {
+    [Authorize]
     public class ProjectsController : Controller
     {
         private readonly ICompanyInfoService _companyInfoService;
@@ -42,7 +43,6 @@ namespace BugTracker.Controllers
             _userManager = userManager;
         }
 
-        [Authorize]
         [HttpGet]
         public async Task<ViewResult> MyProjects()
         {
@@ -52,7 +52,6 @@ namespace BugTracker.Controllers
             return View(userProjects);
         }
 
-        [Authorize]
         [HttpGet]
         public async Task<ViewResult> AllProjects()
         {
@@ -67,7 +66,6 @@ namespace BugTracker.Controllers
             return View(companyProjects);
         }
 
-        [Authorize]
         [HttpGet]
         public async Task<ViewResult> ArchivedProjects()
         {
@@ -77,8 +75,8 @@ namespace BugTracker.Controllers
             return View(archivedProjects);
         }
 
-        [Authorize]
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<ViewResult> UnassignedProjects()
         {
             int companyId = User.Identity!.GetCompanyId();
@@ -88,8 +86,8 @@ namespace BugTracker.Controllers
             return View(unassignedProjects);
         }
 
-        [Authorize]
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AssignPM(int projectId)
         {
             int companyId = User.Identity!.GetCompanyId();
@@ -107,9 +105,9 @@ namespace BugTracker.Controllers
             return View(model);
         }
 
-        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<RedirectToActionResult> AssignPM(AssignPMViewModel model)
         {
             if (string.IsNullOrEmpty(model.ProjectManagerId))
@@ -119,8 +117,8 @@ namespace BugTracker.Controllers
             return RedirectToAction(nameof(Details), new { id = model.Project.Id });
         }
 
-        [Authorize]
         [HttpGet]
+        [Authorize(Roles = "Admin, ProjectManager")]
         public async Task<IActionResult> AssignMembers(int id)
         {
             int companyId = User.Identity!.GetCompanyId();
@@ -142,9 +140,9 @@ namespace BugTracker.Controllers
             return View(model);
         }
 
-        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin, ProjectManager")]
         public async Task<RedirectToActionResult> AssignMembers(ProjectMembersViewModel model)
         {
             int companyId = User.Identity!.GetCompanyId();
@@ -159,7 +157,6 @@ namespace BugTracker.Controllers
             return RedirectToAction(nameof(Details), new { id = model.Project.Id });
         }
 
-        [Authorize]
         [HttpGet]
         public async Task<IActionResult> Details(int? id)
         {
@@ -176,8 +173,8 @@ namespace BugTracker.Controllers
             return View(project);
         }
 
-        [Authorize]
         [HttpGet]
+        [Authorize(Roles = "Admin, ProjectManager")]
         public async Task<ViewResult> Create()
         {
             AddProjectWithPMViewModel model = new();
@@ -194,9 +191,9 @@ namespace BugTracker.Controllers
             return View(model);
         }
 
-        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin, ProjectManager")]
         public async Task<IActionResult> Create(AddProjectWithPMViewModel model)
         {
             if (model is null)
@@ -225,8 +222,8 @@ namespace BugTracker.Controllers
             return View(nameof(Details), project);
         }
 
-        [Authorize]
         [HttpGet]
+        [Authorize(Roles = "Admin, ProjectManager")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id is null)
@@ -255,9 +252,9 @@ namespace BugTracker.Controllers
             return View(model);
         }
 
-        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin, ProjectManager")]
         public async Task<IActionResult> Edit(AddProjectWithPMViewModel model)
         {
             if (model is null)
@@ -282,8 +279,8 @@ namespace BugTracker.Controllers
             return View(nameof(Details), project);
         }
 
-        [Authorize]
         [HttpGet]
+        [Authorize(Roles = "Admin, ProjectManager")]
         public async Task<IActionResult> Archive(int? id)
         {
             if (id is null)
@@ -299,9 +296,9 @@ namespace BugTracker.Controllers
             return View(project);
         }
 
-        [Authorize]
         [HttpPost, ActionName(nameof(Archive))]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin, ProjectManager")]
         public async Task<RedirectToActionResult> ArchiveConfirmed(int id)
         {
             int companyId = User.Identity!.GetCompanyId();
@@ -315,8 +312,8 @@ namespace BugTracker.Controllers
             return RedirectToAction(nameof(AllProjects));
         }
 
-        [Authorize]
         [HttpGet]
+        [Authorize(Roles = "Admin, ProjectManager")]
         public async Task<IActionResult> Restore(int? id)
         {
             if (id is null)
@@ -332,9 +329,9 @@ namespace BugTracker.Controllers
             return View(project);
         }
 
-        [Authorize]
         [HttpPost, ActionName(nameof(Restore))]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin, ProjectManager")]
         public async Task<RedirectToActionResult> RestoreConfirmed(int id)
         {
             int companyId = User.Identity!.GetCompanyId();
@@ -347,7 +344,6 @@ namespace BugTracker.Controllers
 
             return RedirectToAction(nameof(AllProjects));
         }
-
 
         #region HelperMethods
         private async Task ClearAllProjectMembersExceptPMAsync(Project project)

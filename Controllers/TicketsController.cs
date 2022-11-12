@@ -17,6 +17,7 @@ using BugTracker.Models.ViewModels;
 
 namespace BugTracker.Controllers
 {
+    [Authorize]
     public class TicketsController : Controller
     {
         private readonly IProjectService _projectService;
@@ -43,7 +44,6 @@ namespace BugTracker.Controllers
             _userManager = userManager;
         }
 
-        [Authorize]
         [HttpGet]
         public async Task<IActionResult> MyTickets()
         {
@@ -55,7 +55,6 @@ namespace BugTracker.Controllers
             return View(userTickets);
         }
 
-        [Authorize]
         [HttpGet]
         public async Task<IActionResult> AllTickets()
         {
@@ -75,7 +74,6 @@ namespace BugTracker.Controllers
             }
         }
 
-        [Authorize]
         [HttpGet]
         public async Task<IActionResult> ArchivedTickets()
         {
@@ -85,8 +83,8 @@ namespace BugTracker.Controllers
             return View(archivedTickets);
         }
 
-        [Authorize(Roles = "Admin,ProjectManager")]
         [HttpGet]
+        [Authorize(Roles = "Admin,ProjectManager")]
         public async Task<IActionResult> UnassignedTickets()
         {
             int companyId = User.Identity!.GetCompanyId();
@@ -110,9 +108,8 @@ namespace BugTracker.Controllers
             }
         }
 
-
-        [Authorize(Roles = "Admin,ProjectManager")]
         [HttpGet]
+        [Authorize(Roles = "Admin,ProjectManager")]
         public async Task<IActionResult> AssignDeveloper(int id)
         {
             Ticket? ticket = await _ticketService.GetTicketByIdAsync(id);
@@ -128,8 +125,9 @@ namespace BugTracker.Controllers
             return View(model);
         }
 
-        [Authorize(Roles = "Admin,ProjectManager")]
         [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin,ProjectManager")]
         public async Task<IActionResult> AssignDeveloper(AssignDeveloperViewModel model)
         {
             if (model.DeveloperId is null)
@@ -147,7 +145,6 @@ namespace BugTracker.Controllers
             return RedirectToAction(nameof(Details), new { id = model.Ticket.Id });
         }
 
-        [Authorize]
         [HttpGet]
         public async Task<IActionResult> Details(int? id)
         {
@@ -162,7 +159,6 @@ namespace BugTracker.Controllers
             return View(ticket);
         }
 
-        [Authorize]
         [HttpGet]
         public async Task<IActionResult> Create()
         {
@@ -170,7 +166,6 @@ namespace BugTracker.Controllers
             return View();
         }
 
-        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,ProjectId,Title,Description,TicketTypeId,TicketPriorityId")] Ticket ticket)
@@ -196,7 +191,6 @@ namespace BugTracker.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        [Authorize]
         [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
@@ -212,7 +206,6 @@ namespace BugTracker.Controllers
             return View(ticket);
         }
 
-        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,ProjectId,TicketTypeId,TicketStatusId,TicketPriorityId,CreatorId,DeveloperId,Title,Description,Created,Archived")] Ticket ticket)
@@ -251,7 +244,6 @@ namespace BugTracker.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddTicketComment([Bind("Id,TicketId,Comment")]TicketComment ticketComment)
@@ -271,7 +263,6 @@ namespace BugTracker.Controllers
             return RedirectToAction(nameof(Details), new { id = ticketComment.TicketId });
         }
 
-        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddTicketAttachment([Bind("Id,FormFile,Description,TicketId")]TicketAttachment ticketAttachment)
@@ -301,7 +292,6 @@ namespace BugTracker.Controllers
             return RedirectToAction(nameof(Details), new { id = ticketAttachment.TicketId });
         }
 
-        [Authorize]
         [HttpGet]
         public async Task<IActionResult> ShowFile(int id)
         {
@@ -318,8 +308,8 @@ namespace BugTracker.Controllers
             return File(fileData, $"application/{ext}");
         }
 
-        [Authorize]
         [HttpGet]
+        [Authorize(Roles = "Admin,ProjectManager")]
         public async Task<IActionResult> Archive(int? id)
         {
             if (id is null)
@@ -333,9 +323,9 @@ namespace BugTracker.Controllers
             return View(ticket);
         }
 
-        [Authorize]
         [HttpPost, ActionName(nameof(Archive))]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin,ProjectManager")]
         public async Task<IActionResult> ArchiveConfirmed(int id)
         {
             Ticket? ticket = await _ticketService.GetTicketByIdAsync(id);
@@ -347,8 +337,8 @@ namespace BugTracker.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        [Authorize]
         [HttpGet]
+        [Authorize(Roles = "Admin,ProjectManager")]
         public async Task<IActionResult> Restore(int? id)
         {
             if (id is null)
@@ -362,9 +352,9 @@ namespace BugTracker.Controllers
             return View(ticket);
         }
 
-        [Authorize]
         [HttpPost, ActionName(nameof(Restore))]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin,ProjectManager")]
         public async Task<IActionResult> RestoreConfirmed(int id)
         {
             Ticket? ticket = await _ticketService.GetTicketByIdAsync(id);
@@ -378,6 +368,7 @@ namespace BugTracker.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        #region Helper Methods
         private async Task<bool> TicketExists(int id)
         {
             Ticket? ticket = await _ticketService.GetTicketByIdAsync(id);
@@ -418,5 +409,6 @@ namespace BugTracker.Controllers
             ModelState.Remove(nameof(ticket.Status));
             ModelState.Remove(nameof(ticket.Type));
         }
+        #endregion
     }
 }
