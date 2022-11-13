@@ -1,110 +1,395 @@
-﻿@using BugTracker.Models.Enums
-@using Microsoft.AspNetCore.Identity
-@inject SignInManager<BugTrackerUser> SignInManager
+﻿@inject SignInManager<BugTrackerUser> signInManager
+@inject UserManager<BugTrackerUser> userManager
+@inject IRoleService roleService
+
+@{
+    BugTrackerUser currentUser = await userManager.GetUserAsync(User);
+    string? userRole = (await roleService.GetUserRolesAsync(currentUser)).FirstOrDefault();
+}
 
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Bug Tracker</title>
-    <link href="~/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>@ViewData["Title"] - Bug Tracker</title>
+
+  <!-- Favicons -->
+  <link href="~/img/favicon.png" rel="icon">
+  <link href="~/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.gstatic.com" rel="preconnect">
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="~/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="~/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="~/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+  <link href="~/vendor/quill/quill.snow.css" rel="stylesheet">
+  <link href="~/vendor/quill/quill.bubble.css" rel="stylesheet">
+  <link href="~/vendor/remixicon/remixicon.css" rel="stylesheet">
+  <link href="~/vendor/simple-datatables/style.css" rel="stylesheet">
+
+  <!-- Template Main CSS File -->
+  <link href="~/css/style.css" rel="stylesheet">
+
 </head>
 
 <body>
-    <div class="container-fluid overflow-hidden">
-        <div class="row vh-100 overflow-auto">
-            <div class="col-12 col-sm-3 col-xl-2 px-sm-2 px-0 bg-dark d-flex sticky-top">
-                <div class="d-flex flex-sm-column flex-row flex-grow-1 align-items-center align-items-sm-start px-3 pt-2 text-white">
-                    <a href="/" class="d-flex align-items-center pb-sm-3 mb-md-0 me-md-auto text-white text-decoration-none">
-                        <span class="fs-5">B<span class="d-none d-sm-inline">ugTracker</span></span>
-                    </a>
-                    <partial name="_LoginPartial" />
 
-                    @if (SignInManager.IsSignedIn(User))
-                    {
-                        <ul class="nav nav-pills flex-sm-column flex-row flex-nowrap flex-shrink-1 flex-sm-grow-0 flex-grow-1 mb-sm-auto mb-0 justify-content-center align-items-center align-items-sm-start" id="menu">
-                            <li class="nav-item">
-                                <a asp-controller="Home" asp-action="Dashboard" class="nav-link px-sm-0 px-2">
-                                    <i class="fs-5 bi-house"></i><span class="ms-1 d-none d-sm-inline">Dashboard</span>
+    <!-- Header -->
+    <header id="header" class="header fixed-top d-flex align-items-center">
+
+        <!-- Logo -->
+        <div class="d-flex align-items-center justify-content-between">
+            <a href="index.html" class="logo d-flex align-items-center">
+                <img src="~/img/logo.png" alt="">
+                <span class="d-none d-lg-block">Bug Tracker</span>
+            </a>
+            <i class="bi bi-list toggle-sidebar-btn"></i>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="header-nav ms-auto">
+            <ul class="d-flex align-items-center">
+
+                <!-- Notifications -->
+                <li class="nav-item dropdown">
+
+                    <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
+                        <i class="bi bi-bell"></i>
+                        <span class="badge bg-primary badge-number">4</span>
+                    </a>
+
+                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications">
+                        <li class="dropdown-header">
+                            You have 4 new notifications
+                            <a href="#"><span class="badge rounded-pill bg-primary p-2 ms-2">View all</span></a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+
+                        <li class="notification-item">
+                            <i class="bi bi-exclamation-circle text-warning"></i>
+                            <div>
+                            <h4>Lorem Ipsum</h4>
+                            <p>Quae dolorem earum veritatis oditseno</p>
+                            <p>30 min. ago</p>
+                            </div>
+                        </li>
+
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+
+                        <li class="notification-item">
+                            <i class="bi bi-x-circle text-danger"></i>
+                            <div>
+                            <h4>Atque rerum nesciunt</h4>
+                            <p>Quae dolorem earum veritatis oditseno</p>
+                            <p>1 hr. ago</p>
+                            </div>
+                        </li>
+
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+
+                        <li class="notification-item">
+                            <i class="bi bi-check-circle text-success"></i>
+                            <div>
+                            <h4>Sit rerum fuga</h4>
+                            <p>Quae dolorem earum veritatis oditseno</p>
+                            <p>2 hrs. ago</p>
+                            </div>
+                        </li>
+
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+
+                        <li class="notification-item">
+                            <i class="bi bi-info-circle text-primary"></i>
+                            <div>
+                            <h4>Dicta reprehenderit</h4>
+                            <p>Quae dolorem earum veritatis oditseno</p>
+                            <p>4 hrs. ago</p>
+                            </div>
+                        </li>
+
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li class="dropdown-footer">
+                            <a href="#">Show all notifications</a>
+                        </li>
+
+                    </ul>
+
+                </li>
+
+                <!-- Messages -->
+                <li class="nav-item dropdown">
+
+                    <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
+                    <i class="bi bi-chat-left-text"></i>
+                    <span class="badge bg-success badge-number">3</span>
+                    </a>
+
+                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow messages">
+                    <li class="dropdown-header">
+                        You have 3 new messages
+                        <a href="#"><span class="badge rounded-pill bg-primary p-2 ms-2">View all</span></a>
+                    </li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
+
+                    <li class="message-item">
+                        <a href="#">
+                        <img src="~/img/messages-1.jpg" alt="" class="rounded-circle">
+                        <div>
+                            <h4>Maria Hudson</h4>
+                            <p>Velit asperiores et ducimus soluta repudiandae labore officia est ut...</p>
+                            <p>4 hrs. ago</p>
+                        </div>
+                        </a>
+                    </li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
+
+                    <li class="message-item">
+                        <a href="#">
+                        <img src="~/img/messages-2.jpg" alt="" class="rounded-circle">
+                        <div>
+                            <h4>Anna Nelson</h4>
+                            <p>Velit asperiores et ducimus soluta repudiandae labore officia est ut...</p>
+                            <p>6 hrs. ago</p>
+                        </div>
+                        </a>
+                    </li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
+
+                    <li class="message-item">
+                        <a href="#">
+                        <img src="~/img/messages-3.jpg" alt="" class="rounded-circle">
+                        <div>
+                            <h4>David Muldon</h4>
+                            <p>Velit asperiores et ducimus soluta repudiandae labore officia est ut...</p>
+                            <p>8 hrs. ago</p>
+                        </div>
+                        </a>
+                    </li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
+
+                    <li class="dropdown-footer">
+                        <a href="#">Show all messages</a>
+                    </li>
+
+                    </ul>
+
+                </li>
+
+                <!-- Account & Profile -->
+                @if (signInManager.IsSignedIn(User))
+                {
+                    <li class="nav-item dropdown pe-3">
+
+                        <!-- Image & Name -->
+                        <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
+                            <img src="~/img/profile-img.jpg" alt="Profile" class="rounded-circle">
+                            <span class="d-none d-md-block dropdown-toggle ps-2">@currentUser.FullName</span>
+                        </a>
+
+                        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
+                            <li class="dropdown-header">
+                                <h6>@currentUser.FullName</h6>
+                                @if (userRole is not null)
+                                {
+                                <span>@userRole</span>
+                                }
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+
+                            <!-- Profile Dropdown -->
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center" href="users-profile.html">
+                                <i class="bi bi-person"></i>
+                                <span>My Profile</span>
                                 </a>
                             </li>
                             <li>
-                                <a asp-controller="Companies" asp-action="Index" class="nav-link px-sm-0 px-2">
-                                    <i class="fs-5 bi-building"></i><span class="ms-1 d-none d-sm-inline">Company</span>
-                                </a>
+                                <hr class="dropdown-divider">
                             </li>
-                            <li class="dropdown">
-                                <a asp-controller="Projects" asp-action="AllProjects" class="nav-link dropdown-toggle px-sm-0 px-2" id="dropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fs-5 bi-file-earmark-ppt"></i><span class="ms-1 d-none d-sm-inline">Projects</span>
+
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center" href="users-profile.html">
+                                <i class="bi bi-gear"></i>
+                                <span>Account Settings</span>
                                 </a>
-                                <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdown">
-                                    @if (User.IsInRole(nameof(Roles.Admin)) || User.IsInRole(nameof(Roles.ProjectManager)))
-                                    {
-                                        <li><a class="dropdown-item" asp-controller="Projects" asp-action="Create">New project...</a></li>
-                                    }
-                                    @if (!User.IsInRole(nameof(Roles.Admin)))
-                                    {
-                                        <li><a class="dropdown-item" asp-controller="Projects" asp-action="MyProjects">My Projects</a></li>
-                                    }
-                                    <li><a class="dropdown-item" asp-controller="Projects" asp-action="AllProjects">All Projects</a></li>
-                                    @if (User.IsInRole(nameof(Roles.Admin)))
-                                    {
-                                        <li><a class="dropdown-item" asp-controller="Projects" asp-action="UnassignedProjects">Unassigned Projects</a></li>
-                                    }
-                                    <li><a class="dropdown-item" asp-controller="Projects" asp-action="ArchivedProjects">Archived Projects</a></li>
-                                    
-                                </ul>
-                            </li>
-                            <li class="dropdown">
-                                <a asp-controller="Tickets" asp-action="AllTickets" class="nav-link dropdown-toggle px-sm-0 px-2" id="dropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fs-5 bi-file-earmark-font"></i><span class="ms-1 d-none d-sm-inline">Tickets</span>
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdown">
-                                    <li><a class="dropdown-item" asp-controller="Tickets" asp-action="Create">New ticket...</a></li>
-                                    @if (!User.IsInRole(nameof(Roles.Admin)))
-                                    {
-                                        <li><a class="dropdown-item" asp-controller="Tickets" asp-action="MyTickets">My Tickets</a></li>
-                                    }
-                                    <li><a class="dropdown-item" asp-controller="Tickets" asp-action="AllTickets">All Tickets</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Tickets" asp-action="ArchivedTickets">Archived Tickets</a></li>
-                                    @if (User.IsInRole(nameof(Roles.Admin)) || User.IsInRole(nameof(Roles.ProjectManager)))
-                                    {
-                                        <li><a class="dropdown-item" asp-controller="Tickets" asp-action="UnassignedTickets">Unassigned Tickets</a></li>
-                                    }
-                                </ul>
                             </li>
                             <li>
-                                <a asp-controller="Notifications" asp-action="Index" class="nav-link px-sm-0 px-2">
-                                    <i class="fs-5 bi-mailbox2"></i><span class="ms-1 d-none d-sm-inline">Notifications</span>
+                                <hr class="dropdown-divider">
+                            </li>
+
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center" href="pages-faq.html">
+                                <i class="bi bi-question-circle"></i>
+                                <span>Need Help?</span>
+                                </a>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center" href="#">
+                                <i class="bi bi-box-arrow-right"></i>
+                                <span>Sign Out</span>
                                 </a>
                             </li>
                         </ul>
+                    </li>
+                }
+
+            </ul>
+        </nav>
+
+    </header>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar">
+
+        <ul class="sidebar-nav" id="sidebar-nav">
+
+            <!-- Dashboard -->
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Home" asp-action="Dashboard">
+                    <i class="bi bi-grid"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+
+            <!-- Company -->
+            <li class="nav-item">
+                <a asp-controller="Companies" asp-action="Index" class="nav-link px-sm-0 px-2">
+                    <i class="fs-5 bi-building"></i><span class="ms-1 d-none d-sm-inline">Company</span>
+                </a>
+            </li>
+
+            <!-- Projects -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" data-bs-target="#projects-nav" data-bs-toggle="collapse"
+                asp-controller="Projects" asp-action="AllProjects">
+                    <i class="bi bi-menu-button-wide"></i>Projects<i class="bi bi-chevron-down ms-auto"></i>
+                </a>
+                <ul id="projects-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
+          
+                    <!-- Create new -->
+                    @if (User.IsInRole(nameof(Roles.Admin)) || User.IsInRole(nameof(Roles.ProjectManager)))
+                    {
+                        <li><a asp-controller="Projects" asp-action="Create"><i class="bi bi-circle"></i>New project...</a></li>
                     }
-                </div>
-            </div>
 
-            <div class="col d-flex flex-column h-100">
+                    <!-- My Projects -->
+                    @if (!User.IsInRole(nameof(Roles.Admin)))
+                    {
+                        <li><a asp-controller="Projects" asp-action="MyProjects"><i class="bi bi-circle"></i>My Projects</a></li>
+                    }
+     
+                    <!-- All Projects -->
+                    <li><a asp-controller="Projects" asp-action="AllProjects"><i class="bi bi-circle"></i>All Projects</a></li>
 
-                <main class="row">
-                    @RenderBody()
-                </main>
+                    <!-- Unassigned Projects -->
+                    @if (User.IsInRole(nameof(Roles.Admin)))
+                    {
+                        <li><a asp-controller="Projects" asp-action="UnassignedProjects"><i class="bi bi-circle"></i>Unassigned Projects</a></li>
+                    }
 
-                <footer class="row bg-light py-4 mt-auto">
-                    <div class="container">
-                        &copy; 2021 - TheBugTracker - <a asp-controller="Home" asp-action="Privacy">Privacy</a>
-                    </div>
-                </footer>
+                    <!-- Archived Projects -->
+                    <li><a asp-controller="Projects" asp-action="ArchivedProjects"><i class="bi bi-circle"></i>Archived Projects</a></li>
+                </ul>
+            </li>
 
-            </div>
+            <!-- Tickets -->
+            <li class="nav-item">
+                <a asp-controller="Tickets" asp-action="AllTickets" class="nav-link collapsed" data-bs-target="#tickets-nav" data-bs-toggle="collapse">
+                    <i class="bi bi-menu-button-wide"></i>Tickets<i class="bi bi-chevron-down ms-auto"></i>
+                </a>
+                <ul id="tickets-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
+                    <li><a asp-controller="Tickets" asp-action="Create">New ticket...</a></li>
+                    @if (!User.IsInRole(nameof(Roles.Admin)))
+                    {
+                        <li><a asp-controller="Tickets" asp-action="MyTickets">My Tickets</a></li>
+                    }
+                    <li><a asp-controller="Tickets" asp-action="AllTickets">All Tickets</a></li>
+                    <li><a asp-controller="Tickets" asp-action="ArchivedTickets">Archived Tickets</a></li>
+                    @if (User.IsInRole(nameof(Roles.Admin)) || User.IsInRole(nameof(Roles.ProjectManager)))
+                    {
+                        <li><a asp-controller="Tickets" asp-action="UnassignedTickets">Unassigned Tickets</a></li>
+                    }
+                </ul>
+            </li>
 
+            <li class="nav-item">
+                <a asp-controller="Notifications" asp-action="Index" class="nav-link">
+                    <i class="bi bi-menu-button-wide"></i>Notifications
+                </a>
+            </li>
+            
+        </ul>
+
+    </aside>
+
+    <!-- Main Content -->
+    <main id="main" class="main">
+
+        <div class="pagetitle">
+            <h1>@ViewData["Title"]</h1>
         </div>
-    </div>
 
+        <section class="section dashboard">
+            @RenderBody()
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer id="footer" class="footer">
+        <div class="copyright">
+            &copy; Copyright <strong><span>Jeremy Wohl</span></strong>. All Rights Reserved
+        </div>
+    </footer>
+
+    <!-- Vendor JS Files -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script>
+    <script src="~/vendor/apexcharts/apexcharts.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/vendor/chart.js/chart.min.js"></script>
+    <script src="~/vendor/echarts/echarts.min.js"></script>
+    <script src="~/vendor/quill/quill.min.js"></script>
+    <script src="~/vendor/simple-datatables/simple-datatables.js"></script>
+    <script src="~/vendor/tinymce/tinymce.min.js"></script>
+    <script src="~/vendor/php-email-form/validate.js"></script>
+
+    <!-- Template Main JS File -->
+    <script src="~/js/main.js"></script>
+
     @await RenderSectionAsync("Scripts", required: false)
+
 </body>
+
 </html>

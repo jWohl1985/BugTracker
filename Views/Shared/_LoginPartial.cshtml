@@ -1,5 +1,4 @@
-﻿@using Microsoft.AspNetCore.Identity
-@inject SignInManager<BugTrackerUser> SignInManager
+﻿@inject SignInManager<BugTrackerUser> SignInManager
 @inject UserManager<BugTrackerUser> UserManager
 @{ 
     BugTrackerUser bugTrackerUser = await UserManager.GetUserAsync(User);
