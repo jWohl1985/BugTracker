@@ -1,15 +1,41 @@
-﻿@using BugTracker.Extensions
-
-@model DashboardViewModel
+﻿@model DashboardViewModel
 
 @inject UserManager<BugTrackerUser> userManager
 @inject ICompanyInfoService companyInfoService
+@inject IProjectService projectService
+@inject ITicketService ticketService
 @inject IRoleService roleService
 
 @{
 	ViewData["Title"] = "Dashboard";
 	BugTrackerUser currentUser = await userManager.GetUserAsync(User);
 	Company userCompany = await companyInfoService.GetCompanyInfoByIdAsync(currentUser.CompanyId);
+
+	async Task<List<Project>> GetUserProjects()
+	{
+		IEnumerable<string> roles = await roleService.GetUserRolesAsync(currentUser);
+		if (roles.Contains("Admin"))
+		{
+			return await companyInfoService.GetAllProjectsAsync(userCompany.Id);
+		}
+		else
+		{
+			return await projectService.GetUserProjectsAsync(currentUser.Id);
+		}
+	}
+
+	async Task<List<Ticket>> GetUserTickets()
+	{
+		IEnumerable<string> roles = await roleService.GetUserRolesAsync(currentUser);
+		if (roles.Contains("Admin"))
+		{
+			return await ticketService.GetAllTicketsByCompanyAsync(userCompany.Id);
+		}
+		else
+		{
+			return await ticketService.GetTicketsByUserIdAsync(currentUser.Id, userCompany.Id);
+		}
+	}
 }
 
 <!-- Styles -->
@@ -25,18 +51,6 @@
 	}
 </style>
 
-<h1>Dashboard</h1>
-<a href="javascript:void(0);">
-	@if (currentUser.AvatarFileData is not null)
-	{
-		<img class="media-object" src="data:image/*;base64,@(Convert.ToBase64String(currentUser.AvatarFileData))" alt="" style="width:30px;height:30px">
-	}
-	else
-	{
-		<img class="media-object" src="https://cdn.icon-icons.com/icons2/1378/PNG/512/avatardefault_92824.png" alt="" style="width:30px;height:30px">
-	}
-</a>
-
 <strong>@currentUser.FullName</strong>
 <span class="text-muted" style="font-size:x-small;">
 	<strong>@Model.Company.Name</strong>
@@ -47,13 +61,13 @@
 
 		<div class="row mt-2">
 
-			<!-- All Projects -->
+			<!-- My Projects -->
 			<div class="col-lg-3 col-md-6 col-sm-6">
-				<a asp-controller="Projects" asp-action="AllProjects" style="text-decoration:none">
+				<a asp-controller="Projects" asp-action="MyProjects" style="text-decoration:none">
 					<div class="card text-center bg-info">
 						<div class="body">
 							<div class="p-15 text-light">
-								<h3>@Model.Projects.Where(p => p.StartDate < DateTime.Now && p.EndDate > DateTime.Now).Count()</h3>
+								<h3>@((await GetUserProjects()).Count())</h3>
 								<span>Active Projects</span>
 							</div>
 						</div>
@@ -61,13 +75,13 @@
 				</a>
 			</div>
 
-			<!-- All Tickets -->
+			<!-- My Tickets -->
 			<div class="col-lg-3 col-md-6 col-sm-6">
 				<a asp-controller="Tickets" asp-action="AllTickets" style="text-decoration:none">
 					<div class="card text-center bg-secondary">
 						<div class="body">
 							<div class="p-15 text-light">
-								<h3>@Model.Tickets.Count()</h3>
+								<h3>@((await GetUserTickets()).Count())</h3>
 								<span>Total Tickets</span>
 							</div>
 						</div>
@@ -75,90 +89,23 @@
 				</a>
 			</div>
 
-			<!-- Unassigned Tickets -->
-			<div class="col-lg-3 col-md-6 col-sm-6">
-				<a asp-controller="Tickets" asp-action="UnassignedTickets" style="text-decoration:none">
-				<div class="card text-center bg-warning">
-					<div class="body">
-						<div class="p-15 text-light">
-							<h3>@Model.Tickets.Where(t => string.IsNullOrEmpty(t.DeveloperId)).Count()</h3>
-							<span>Unassigned Tickets</span>
-						</div>
-					</div>
-				</div>
-				</a>
-			</div>
-
-			<div class="col-lg-3 col-md-6 col-sm6">
-				<div class="card text-center bg-dark">
-					<div class="body">
-						<div class="p-15 text-light">
-							<h3>@(Model.Projects.Count() + Model.Tickets.Count() + Model.Members.Count())</h3>
-							<span>Total Data</span>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-
-
-
-
-		<div class="row gy-2">
-			<div class="col-md-12 col">
-				<div class="row col-cols-4 mt-5 bg-secondary">
-					<div class="card col m-1 p-2">
-						<div class="card-body">
-							<h5>Projects by Priority</h5>
-							<p>[Google Charts]</p>
-							<div id="chart3D"></div>
-						</div>
-					</div>
-					<div class="card col m-1 p-2">
-						<div class="card-body">
-							<h5>Project Tickets Count (%)</h5>
-							<p>[Google Charts]</p>
-							<div id="donut"></div>
-						</div>
-					</div>
-					<div class="card col m-1 p-2">
-						<div class="card-body">
-							<h5>Tickets by Priority</h5>
-							<p>[Morris Charts]</p>
-							<!-- Morris: Donut -->
-							<div class="col-md-12">
-								<div id="legend" class="donut-legend" style="font-size:x-small"></div>
-							</div>
-							<div class="col-md-12">
-								<div class="chart chart-md" id="morrisTicketPriority"></div>
+			@if (User.IsInRole("Admin") || User.IsInRole("ProjectManager"))
+			{
+				<!-- Unassigned Tickets -->
+				<div class="col-lg-3 col-md-6 col-sm-6">
+					<a asp-controller="Tickets" asp-action="UnassignedTickets" style="text-decoration:none">
+						<div class="card text-center bg-warning">
+						<div class="body">
+							<div class="p-15 text-light">
+								<h3>@Model.Tickets.Where(t => string.IsNullOrEmpty(t.DeveloperId)).Count()</h3>
+								<span>Unassigned Tickets</span>
 							</div>
 						</div>
-					</div>
-					<div class="card col m-1 p-2">
-						<div class="card-body">
-							<h5>Tickets by Status</h5>
-							<p>[ChartJS]</p>
-							<!-- ChartJS: Pie/Doughnut -->
-							<div class="col-md-12">
-								<!--  Chart.js Canvas Tag -->
-								<canvas id="donutChart"></canvas>
-							</div>
 						</div>
-					</div>
+					</a>
 				</div>
-			</div>
-		</div>
-		<div class="row gy-2">
-			<div class="cols mt-5 bg-secondary">
-				<div class="card col m-1 p-2">
-					<div class="card-body" style="height:600px">
-						<h5>Project: Tickets vs Developers</h5>
-						<p>[amCharts]</p>
-						<!-- HTML -->
-						<div id="chartdiv"></div>
-					</div>
-				</div>
-			</div>
+			}
+
 		</div>
 	</div>
 
@@ -167,7 +114,7 @@
 	<div class="mt-5 ">
 		<div class="row">
 
-			@* Projects Table *@
+			<!-- Projects List -->
 			<div class="col">
 				<div class="bg-secondary">
 					<div class="card m-1 p-2">
@@ -176,12 +123,11 @@
 						</div>
 						<div class="card-body">
 							<div class="table-responsive" style="overflow-y:auto;height:600px;">
-                                <table class="table table-hover">
+                                <table class="table table-hover table-striped">
                                     <thead class="">
                                         <tr>
-                                            <th>Name</th>
-											<th>Start Date</th>
-											<th>End Date</th>
+                                            <th>Project</th>
+											<th>Due Date</th>
 											<th>Priority</th>
 											<th>Action</th>
                                         </tr>
@@ -191,7 +137,6 @@
                                          {
                                               <tr>
                                                   <td><a asp-controller="Projects" asp-action="Details" asp-route-id="@project.Id" style="color:black"><strong>@project.Name</strong></a></td>
-                                                  <td><span style="font-size:small">@project.StartDate.ToString("MM.dd.yyyy")</span></td>
 												  <td><span style="font-size:small">@project.EndDate.ToString("MM.dd.yyyy")</span></td>
 												  <td><span class="badge bg-dark">@project.Priority.Name</span></td>
                                                   <td><a class="btn btn-sm btn-outline-secondary" 
@@ -203,13 +148,11 @@
                                 </table>
                             </div>
 						</div>
-						<div class="card-footer">
-						</div>
 					</div>
 				</div>
 			</div>
 
-			@* Tickets Table *@
+			<!-- Tickets List -->
 			<div class="col">
 				<div class="bg-secondary">
 					<div class="card m-1 p-2">
@@ -271,6 +214,7 @@
 				</div>
 			</div>
 
+			<!-- Members -->
 			<div class="col-md-2 ">
 				<div class="bg-dark">
 					<div class="card m-1 p-2">
@@ -284,6 +228,7 @@
 								<div class="">
 									<span class="fw-bold">@user.FullName</span>
 									<h6>@((await roleService.GetUserRolesAsync(user)).FirstOrDefault())</h6>
+									<hr/>
 								</div>
 							}
 						</div>

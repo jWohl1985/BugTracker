@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.IO;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using BugTracker.Data;
 using BugTracker.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -188,7 +182,7 @@ namespace BugTracker.Controllers
             Ticket? newTicket = await _ticketService.GetTicketAsNoTrackingAsync(ticket.Id);
             await _historyService.AddHistoryAsync(null, newTicket!, user.Id);
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(AllTickets));
         }
 
         [HttpGet]
@@ -241,7 +235,7 @@ namespace BugTracker.Controllers
 
             await _historyService.AddHistoryAsync(oldTicket!, newTicket!, user.Id);
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(AllTickets));
         }
 
         [HttpPost]
@@ -334,7 +328,7 @@ namespace BugTracker.Controllers
                 return NotFound();
 
             await _ticketService.ArchiveTicketAsync(ticket);
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(AllTickets));
         }
 
         [HttpGet]
