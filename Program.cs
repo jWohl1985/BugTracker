@@ -25,7 +25,7 @@ builder.Services.AddIdentity<BugTrackerUser, IdentityRole>(options => options.Si
     
 
 builder.Services.AddScoped<IRoleService, RoleService>();
-builder.Services.AddScoped<ICompanyInfoService, CompanyInfoService>();
+builder.Services.AddScoped<ICompanyService, CompanyInfoService>();
 builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<ITicketService, TicketService>();
 builder.Services.AddScoped<ITicketHistoryService, TicketHistoryService>();
@@ -66,7 +66,7 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Home}/{action=Dashboard}/");
 app.MapRazorPages();
 
 app.Run();

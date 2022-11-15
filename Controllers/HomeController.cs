@@ -13,10 +13,10 @@ namespace BugTracker.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly ICompanyInfoService _companyInfoService;
+        private readonly ICompanyService _companyInfoService;
         private readonly IProjectService _projectService;
 
-        public HomeController(ILogger<HomeController> logger, ICompanyInfoService companyInfoService, IProjectService projectService)
+        public HomeController(ILogger<HomeController> logger, ICompanyService companyInfoService, IProjectService projectService)
         {
             _logger = logger;
             _companyInfoService = companyInfoService;

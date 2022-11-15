@@ -2,7 +2,7 @@
 
 namespace BugTracker.Services.Interfaces
 {
-    public interface ICompanyInfoService
+    public interface ICompanyService
     {
         Task<Company> GetCompanyInfoByIdAsync(int? companyId);
 

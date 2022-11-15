@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BugTracker.Services
 {
-    public class CompanyInfoService : ICompanyInfoService
+    public class CompanyInfoService : ICompanyService
     {
         private readonly ApplicationDbContext _context;
 

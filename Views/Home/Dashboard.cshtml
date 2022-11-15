@@ -1,15 +1,17 @@
 ﻿@model DashboardViewModel
 
 @inject UserManager<BugTrackerUser> userManager
-@inject ICompanyInfoService companyInfoService
+@inject ICompanyService companyInfoService
 @inject IProjectService projectService
 @inject ITicketService ticketService
 @inject IRoleService roleService
 
 @{
-	ViewData["Title"] = "Dashboard";
+
 	BugTrackerUser currentUser = await userManager.GetUserAsync(User);
 	Company userCompany = await companyInfoService.GetCompanyInfoByIdAsync(currentUser.CompanyId);
+
+	ViewData["Title"] = User.IsInRole("Admin") ? $"{userCompany.Name} Dashboard" : $"{userCompany.Name} - {currentUser.FirstName}'s Dashboard";
 
 	async Task<List<Project>> GetUserProjects()
 	{
@@ -50,11 +52,6 @@
 		height: 500px;
 	}
 </style>
-
-<strong>@currentUser.FullName</strong>
-<span class="text-muted" style="font-size:x-small;">
-	<strong>@Model.Company.Name</strong>
-</span>
 
 <div>
 	<div classxfont-weighteighteightgetainer-fluid">

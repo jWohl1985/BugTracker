@@ -1,9 +1,11 @@
 ﻿@inject SignInManager<BugTrackerUser> signInManager
 @inject UserManager<BugTrackerUser> userManager
 @inject IRoleService roleService
+@inject ICompanyService companyService
 
 @{
     BugTrackerUser currentUser = await userManager.GetUserAsync(User);
+    Company userCompany = await companyService.GetCompanyInfoByIdAsync(currentUser.CompanyId);
     string? userRole = (await roleService.GetUserRolesAsync(currentUser)).FirstOrDefault();
 }
 
@@ -283,17 +285,9 @@
                 </a>
             </li>
 
-            <!-- Company -->
-            <li class="nav-item">
-                <a asp-controller="Companies" asp-action="Index" class="nav-link px-sm-0 px-2">
-                    <i class="fs-5 bi-building"></i><span class="ms-1 d-none d-sm-inline">Company</span>
-                </a>
-            </li>
-
             <!-- Projects -->
             <li class="nav-item">
-                <a class="nav-link collapsed" data-bs-target="#projects-nav" data-bs-toggle="collapse"
-                asp-controller="Projects" asp-action="AllProjects">
+                <a class="nav-link collapsed" data-bs-target="#projects-nav" data-bs-toggle="collapse">
                     <i class="bi bi-menu-button-wide"></i>Projects<i class="bi bi-chevron-down ms-auto"></i>
                 </a>
                 <ul id="projects-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
@@ -301,46 +295,46 @@
                     <!-- Create new -->
                     @if (User.IsInRole(nameof(Roles.Admin)) || User.IsInRole(nameof(Roles.ProjectManager)))
                     {
-                        <li><a asp-controller="Projects" asp-action="Create"><i class="bi bi-circle"></i>New project...</a></li>
+                        <li><a asp-controller="Projects" asp-action="Create"><i class="bi bi-file-earmark-plus fs-3"></i>New Project</a></li>
                     }
 
                     <!-- My Projects -->
                     @if (!User.IsInRole(nameof(Roles.Admin)))
                     {
-                        <li><a asp-controller="Projects" asp-action="MyProjects"><i class="bi bi-circle"></i>My Projects</a></li>
+                        <li><a asp-controller="Projects" asp-action="MyProjects"><i class="bi bi-person-fill fs-3"></i>My Projects</a></li>
                     }
      
                     <!-- All Projects -->
-                    <li><a asp-controller="Projects" asp-action="AllProjects"><i class="bi bi-circle"></i>All Projects</a></li>
+                    <li><a asp-controller="Projects" asp-action="AllProjects"><i class="bi bi-files fs-3"></i>All Projects</a></li>
 
                     <!-- Unassigned Projects -->
                     @if (User.IsInRole(nameof(Roles.Admin)))
                     {
-                        <li><a asp-controller="Projects" asp-action="UnassignedProjects"><i class="bi bi-circle"></i>Unassigned Projects</a></li>
+                        <li><a asp-controller="Projects" asp-action="UnassignedProjects"><i class="bi bi-patch-question fs-3"></i>Unassigned Projects</a></li>
                     }
 
                     <!-- Archived Projects -->
-                    <li><a asp-controller="Projects" asp-action="ArchivedProjects"><i class="bi bi-circle"></i>Archived Projects</a></li>
+                    <li><a asp-controller="Projects" asp-action="ArchivedProjects"><i class="bi bi-watch fs-3"></i>Archived Projects</a></li>
                 </ul>
             </li>
 
             <!-- Tickets -->
             <li class="nav-item">
-                <a asp-controller="Tickets" asp-action="AllTickets" class="nav-link collapsed" data-bs-target="#tickets-nav" data-bs-toggle="collapse">
+                <a class="nav-link collapsed" data-bs-target="#tickets-nav" data-bs-toggle="collapse">
                     <i class="bi bi-menu-button-wide"></i>Tickets<i class="bi bi-chevron-down ms-auto"></i>
                 </a>
                 <ul id="tickets-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
-                    <li><a asp-controller="Tickets" asp-action="Create">New ticket...</a></li>
+                    <li><a asp-controller="Tickets" asp-action="Create"><i class="bi bi-file-earmark-plus fs-3"></i>New Ticket</a></li>
                     @if (!User.IsInRole(nameof(Roles.Admin)))
                     {
-                        <li><a asp-controller="Tickets" asp-action="MyTickets">My Tickets</a></li>
+                        <li><a asp-controller="Tickets" asp-action="MyTickets"><i class="bi bi-person-fill fs-3"></i>My Tickets</a></li>
                     }
-                    <li><a asp-controller="Tickets" asp-action="AllTickets">All Tickets</a></li>
-                    <li><a asp-controller="Tickets" asp-action="ArchivedTickets">Archived Tickets</a></li>
+                    <li><a asp-controller="Tickets" asp-action="AllTickets"><i class="bi bi-files fs-3"></i>All Tickets</a></li>
                     @if (User.IsInRole(nameof(Roles.Admin)) || User.IsInRole(nameof(Roles.ProjectManager)))
                     {
-                        <li><a asp-controller="Tickets" asp-action="UnassignedTickets">Unassigned Tickets</a></li>
+                        <li><a asp-controller="Tickets" asp-action="UnassignedTickets"><i class="bi bi-patch-question fs-3"></i>Unassigned Tickets</a></li>
                     }
+                    <li><a asp-controller="Tickets" asp-action="ArchivedTickets"><i class="bi bi-watch fs-3"></i>Archived Tickets</a></li>
                 </ul>
             </li>
 

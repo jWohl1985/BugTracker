@@ -11,9 +11,9 @@ namespace BugTracker.Controllers
     public class UserRolesController : Controller
     {
         private readonly IRoleService _roleService;
-        private readonly ICompanyInfoService _companyInfoService;
+        private readonly ICompanyService _companyInfoService;
 
-        public UserRolesController(IRoleService roleService, ICompanyInfoService companyInfoService)
+        public UserRolesController(IRoleService roleService, ICompanyService companyInfoService)
         {
             _roleService = roleService;
             _companyInfoService = companyInfoService;

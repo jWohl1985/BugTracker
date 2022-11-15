@@ -19,7 +19,7 @@ namespace BugTracker.Controllers
     [Authorize]
     public class ProjectsController : Controller
     {
-        private readonly ICompanyInfoService _companyInfoService;
+        private readonly ICompanyService _companyInfoService;
         private readonly IProjectService _projectService;
         private readonly IRoleService _roleService;
         private readonly ILookupService _lookupService;
@@ -27,7 +27,7 @@ namespace BugTracker.Controllers
         private readonly UserManager<BugTrackerUser> _userManager;
 
         public ProjectsController(
-            ICompanyInfoService companyInfoService,
+            ICompanyService companyInfoService,
             IProjectService projectService,
             IRoleService roleService,
             ILookupService lookupService,
